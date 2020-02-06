@@ -76,4 +76,14 @@ class RestaurantBranchController extends Controller
         return redirect('/branch');
     }
 
+    public function apiIndex()
+    {
+        return RestaurantBranch::all();
+    }
+
+    public function apiIndexById($id)
+    {
+        return RestaurantBranch::where('id', $id)->first();
+    }
+
 }

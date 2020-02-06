@@ -74,4 +74,14 @@ class CategoryController extends Controller
         
         return redirect('/category');
     }
+
+    public function apiIndex()
+    {
+        return Category::all();
+    }
+
+    public function apiIndexById($id)
+    {
+        return Category::where('id', $id)->first();
+    }
 }

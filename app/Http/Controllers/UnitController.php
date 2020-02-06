@@ -59,4 +59,14 @@ class UnitController extends Controller
         
         return redirect('/unit');
     }
+
+    public function apiIndex()
+    {
+        return Unit::all();
+    }
+
+    public function apiIndexById($id)
+    {
+        return Unit::where('id', $id)->first();
+    }
 }

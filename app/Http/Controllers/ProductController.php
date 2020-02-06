@@ -91,4 +91,13 @@ class ProductController extends Controller
         return redirect('/product');
     }
 
+    public function apiIndex()
+    {
+        return Product::all();
+    }
+
+    public function apiIndexById($id)
+    {
+        return Product::where('id', $id)->first();
+    }
 }

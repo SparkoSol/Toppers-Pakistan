@@ -70,4 +70,14 @@ class RestaurantController extends Controller
         
         return redirect('/restaurant');
     }
+
+    public function apiIndex()
+    {
+        return Restaurant::all();
+    }
+
+    public function apiIndexById($id)
+    {
+        return Restaurant::where('id', $id)->first();
+    }
 }
