@@ -17,8 +17,11 @@ class CreateCustomersTable extends Migration
             $table->increments('id');
             $table->string('name');
             $table->string('email')->unique();
+            $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->mediumText('address');
+            $table->string('phone')->unique()->default('123');
+            $table->string('address')->default('123');
+            $table->rememberToken();
             $table->timestamps();
         });
     }

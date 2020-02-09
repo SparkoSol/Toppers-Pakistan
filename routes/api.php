@@ -41,6 +41,17 @@ Route::get('/restaurant-branch/{id}','RestaurantBranchController@apiIndexById');
 Route::get('/unit/{id}','UnitController@apiIndexById');
 
 
+//Get Products by category id
+Route::get('/category/{id}/products','CategoryController@apiProducts');
+
+
+//Customer Register and Login
+
+Route::middleware('auth:api')->get('/customer-user', function (Request $request) {
+    return $request->user();
+});
+
+Route::post('/register-customer','CustomerController@register');
 
 
 

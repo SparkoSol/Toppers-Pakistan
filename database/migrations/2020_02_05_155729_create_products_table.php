@@ -25,6 +25,7 @@ class CreateProductsTable extends Migration
             $table->integer('quantity');
             $table->integer('serving');
             $table->integer('unit_price');
+            $table->mediumText('image');
             $table->timestamps();
         });
     }

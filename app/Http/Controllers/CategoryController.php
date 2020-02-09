@@ -84,4 +84,11 @@ class CategoryController extends Controller
     {
         return Category::where('id', $id)->first();
     }
+
+    public function apiProducts($id)
+    {
+        $category = Category::where('id',$id)->first();
+        $products = $category->products;
+        return $products;
+    }
 }

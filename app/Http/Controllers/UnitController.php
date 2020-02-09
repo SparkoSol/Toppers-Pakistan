@@ -67,6 +67,6 @@ class UnitController extends Controller
 
     public function apiIndexById($id)
     {
-        return Unit::where('id', $id)->first();
+        return [Unit::where('id', $id)->first()];
     }
 }

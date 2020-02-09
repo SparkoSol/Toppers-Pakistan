@@ -36,7 +36,7 @@ class ProductController extends Controller
         return view('restaurant.product.add-product',compact('restaurants','units','categories'));
     }
 
-    public function storeProduct() {
+    public function storeProduct(Request $request) {
         $product = new Product();
         $product->name = request('name');
         $product->restaurant_id = request('restaurant');
@@ -45,6 +45,10 @@ class ProductController extends Controller
         $product->unit_price =  request('price');
         $product->quantity = request('quantity'); 
         $product->serving  = request('serving');
+        $imageName = time().'.'.request()->image->getClientOriginalExtension();
+        request()->image->move(public_path('images/products'), $imageName);
+
+        $product->image = $imageName;
         $product->save();
         return redirect('/product');
     }
@@ -67,17 +71,34 @@ class ProductController extends Controller
         $unit_price =  request('price');
         $quantity = request('quantity'); 
         $serving  = request('serving');
-        Product::where('id', $id)
-                ->update([
-                        'name'  => $name,
-                        'restaurant_id' => $restaurant_id,
-                        'category_id'  => $category_id,
-                        'unit_id'  => $unit_id,
-                        'unit_price'  => $unit_price,
-                        'quantity'  => $quantity,
-                        'serving'=> $serving
-                    ]);
-        
+
+        if(request('image') != null){
+            $imageName = time().'.'.request()->image->getClientOriginalExtension();
+            request()->image->move(public_path('images/products'), $imageName);
+            Product::where('id', $id)
+            ->update([
+                    'name'  => $name,
+                    'restaurant_id' => $restaurant_id,
+                    'category_id'  => $category_id,
+                    'unit_id'  => $unit_id,
+                    'unit_price'  => $unit_price,
+                    'quantity'  => $quantity,
+                    'serving'=> $serving,
+                    'image'=>$imageName
+                ]);
+        }
+        else{
+            Product::where('id', $id)
+            ->update([
+                    'name'  => $name,
+                    'restaurant_id' => $restaurant_id,
+                    'category_id'  => $category_id,
+                    'unit_id'  => $unit_id,
+                    'unit_price'  => $unit_price,
+                    'quantity'  => $quantity,
+                    'serving'=> $serving
+                ]);
+        }        
         return redirect('/product');
         
     }
