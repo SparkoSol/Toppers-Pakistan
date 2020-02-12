@@ -53,5 +53,10 @@ Route::middleware('auth:api')->get('/customer-user', function (Request $request)
 
 Route::post('/register-customer','CustomerController@register');
 
+Route::post('/login-customer','CustomerController@login');
 
+
+Route::post('/address','AddressController@storeAddress');
+Route::get('/address/{id}','AddressController@getAddressByCustomerId');
+Route::get('/delete-address/{id}','AddressController@deleteAddress');
 

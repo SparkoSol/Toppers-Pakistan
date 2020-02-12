@@ -25,7 +25,7 @@
                     <th>{{$restaurants[$i]->email}}</th>
                     <th>{{$restaurants[$i]->address}}</th>
                     <th>{{$restaurants[$i]->phone}}</th>
-                    <th class="crud"><a href='/edit-restaurant/{{$restaurants[$i]->id}}' class="btn btn-primary">Edit</a>  <a href='/delete-restaurant/{{$restaurants[$i]->id}}' class="btn btn-danger">Delete</a> </th>
+                    <th class="crud"><a href='/view-restaurant/{{$restaurants[$i]->id}}' class="btn btn-success">View</a>  <a href='/edit-restaurant/{{$restaurants[$i]->id}}' class="btn btn-primary">Edit</a>  <a href='/delete-restaurant/{{$restaurants[$i]->id}}' class="btn btn-danger">Delete</a> </th>
                 </tr>
             @endfor
         </table>

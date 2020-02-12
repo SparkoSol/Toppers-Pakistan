@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Customer;
-use App\Http\Controllers\Client;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Hash;
+
 
 class CustomerController extends Controller
 {
@@ -29,96 +32,62 @@ class CustomerController extends Controller
         return Customer::where('id', $id)->first();
     }
 
-    public function register(Request $request){
+	public function index() {
+        return view('customer')->with('customers', Customer::all());
+	}
 
-        $request->validate([
+	public function address($id) {
+        return view('customer.customer-addresses')->with('addresses', Customer::where('id',$id)->first()->addresses);
+	}
+
+
+    public function register(){
+
+		$allCustomers = Customer::all();
+
+
+		foreach ($allCustomers as $customerOne) {
+			if($customerOne->email == request('email')){
+				return "error";
+			}
+		}
+		request()->validate([
 			'email'=>'required',
 			'name'=>'required',
             'password'=>'required',
-            'phone'=>'required',
-            'address'=>'required'
+            'phone'=>'required'
 		]);
 
 		$customer = new Customer();
-		$customer->email =    $request->email;
-        $customer->name =     $request->name;
-        $customer->phone =    $request->phone;
-        $customer->address =  $request->address;
-		$customer->password = bcrypt($request->password);
+		$customer->email =    request('email');
+        $customer->name =     request('name');
+        $customer->phone =    request('phone');
+		$customer->password = bcrypt(request('password'));
 		$customer->save();
 
-
-		$http = new Client;
-
-		$response = $http->post(url('oauth/token'), [
-		    'form_params' => [
-		        'grant_type' => 'password',
-		        'client_id' => '1',
-		        'client_secret' => 'vmB8vMcV6ayavXMmjkE0U1htp8g81dfS0AvRWjEG',
-		        'username' => $request->email,
-                'password' => $request->password,
-                'theNewProvider'=>'api',
-		        'scope' => '',
-		    ],
-		]);
-
-
-		// return response(['auth'=>json_decode((string) $response->getBody(), true),'customer'=>$customer]);
-		
+		$this->login();
 	}
 
-	public function login(Request $request){
+	public function login(){
 		
-		$request->validate([
+		request()->validate([
 			'email'=>'required',
 			'password'=>'required'
 		]);
 
-		$customer= Customer::where('email',$request->email)->first();
+
+		$customer= Customer::where('email',request('email'))->first();
 
 		if(!$customer){
-			return response(['status'=>'error','message'=>'customer not found']);
+			return "error";
 		}
 
-		if(Hash::check($request->password, $customer->password)){
-
-				$http = new Client;
-
-			$response = $http->post(url('oauth/token'), [
-				'form_params' => [
-					'grant_type' => 'password',
-					'client_id' => '2',
-					'client_secret' => 'cK13jXYdcIjETs7yKO8wpkvFGoZhN6WgEex9eCbB',
-					'username' => $request->email,
-					'password' => $request->password,
-					'scope' => '',
-				],
-			]);
-			return response(['auth' => json_decode((string)$response->getBody(), true), 'customer' => $customer]);
-
-		
-		}else{
-			return response(['message'=>'password not match','status'=>'error']);
+		if(Hash::check(request('password'),$customer->password)){
+			echo($customer);
 		}
-
-
-	}
-
-	public function refreshToken() {
-
-		$http = new Client;
-
-		$response = $http->post(url('oauth/token'), [
-		    'form_params' => [
-		        'grant_type' => 'refresh_token',
-		        'refresh_token' => request('refresh_token'),
-		        'client_id' => '2',
-		        'client_secret' => 'cK13jXYdcIjETs7yKO8wpkvFGoZhN6WgEex9eCbB',
-		        'scope' => '',
-		    ],
-		]);
-
-		return json_decode((string) $response->getBody(), true);
+		else{
+			return "error";
+		}
 
 	}
 

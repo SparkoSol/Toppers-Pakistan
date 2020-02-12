@@ -37,7 +37,13 @@ class RestaurantBranchController extends Controller
         $branch->email = request('email');
         $branch->address = request('address');
         $branch->phone = request('phone');      
-        $branch->restaurant_id = request('restaurant');      
+        $branch->restaurant_id = request('restaurant');    
+        
+        $imageName = time().'.'.request()->image->getClientOriginalExtension();
+        request()->image->move(public_path('images/branch'), $imageName);
+        $branch->image = $imageName;
+
+        
         $branch->save();
         return redirect('/branch');
     }
@@ -56,6 +62,32 @@ class RestaurantBranchController extends Controller
         $address = request('address');
         $phone = request('phone');      
         $restaurant_id = request('restaurant');   
+
+        if(request('image') != null){
+            $imageName = time().'.'.request()->image->getClientOriginalExtension();
+            request()->image->move(public_path('images/branch'), $imageName);
+            RestaurantBranch::where('id', $id)
+                ->update(['name'  => $name,
+                         'restaurant_id' => $restaurant_id,
+                         'email'  => $email,
+                         'address'=> $address,
+                         'phone'  => $phone,
+                         'image' => $imageName
+                         ]);
+        }
+        else{
+            RestaurantBranch::where('id', $id)
+            ->update(['name'  => $name,
+                     'restaurant_id' => $restaurant_id,
+                     'email'  => $email,
+                     'address'=> $address,
+                     'phone'  => $phone
+                     ]);
+        }
+
+
+
+
 
         RestaurantBranch::where('id', $id)
                 ->update(['name'  => $name,

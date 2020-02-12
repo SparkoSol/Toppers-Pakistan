@@ -27,6 +27,8 @@ Route::post('/store-restaurant','RestaurantController@storeRestaurant');
 Route::get('/edit-restaurant/{id}','RestaurantController@editRestaurant');
 Route::post('/update-restaurant/{id}','RestaurantController@updateRestaurant');
 Route::get('/delete-restaurant/{id}','RestaurantController@deleteRestaurant');
+Route::get('/view-restaurant/{id}','RestaurantController@viewRestaurant');
+
 
 //Restaurant Branch Routes
 Route::get('/branch', 'RestaurantBranchController@index');
@@ -61,6 +63,11 @@ Route::get('/edit-unit/{id}','UnitController@editUnit');
 Route::post('/update-unit/{id}','UnitController@updateUnit');
 Route::get('/delete-unit/{id}','UnitController@deleteUnit');
 
+
+//Customer
+Route::get('/customer', 'CustomerController@index');
+Route::get('/customer-address/{id}','CustomerController@address');
+Route::get('/customer-order','CustomerController@order');
 
 
 

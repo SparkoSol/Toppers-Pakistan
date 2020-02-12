@@ -2,6 +2,7 @@
 
 namespace App;
 
+use App\Address;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -47,5 +48,10 @@ class Customer extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
     
+    public function addresses(){
+        return $this->hasMany(Address::class);
+    }
+
+
 }
 
