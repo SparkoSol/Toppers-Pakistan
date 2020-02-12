@@ -15,4 +15,7 @@ class Product extends Model
     public function unit(){
         return $this->HasOne(Unit::class,'id','unit_id');
     }
+    public function orderItem(){
+        return $this->belongsTo(OrderItem::class);
+    }
 }

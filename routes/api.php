@@ -60,3 +60,8 @@ Route::post('/address','AddressController@storeAddress');
 Route::get('/address/{id}','AddressController@getAddressByCustomerId');
 Route::get('/delete-address/{id}','AddressController@deleteAddress');
 
+
+Route::post('/order','OrderController@storeOrderApi');
+Route::post('/order-item','OrderItemController@storeOrderItemApi');
+
+

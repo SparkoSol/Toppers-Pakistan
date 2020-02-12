@@ -4,6 +4,9 @@
 
 @section('content')
 <div style="padding:50px;">
+    <div class="page-header">
+        <h1>Products</h1>      
+      </div>
     <div style="padding:20px;">
         <a href="{{url('/add-product')}}" class="btn btn-primary">Add New Restaurant Product</a>
     </div>

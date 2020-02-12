@@ -6,7 +6,7 @@
 
 <div style="padding:50px;">
     <div class="page-header">
-        <h1>Customer Order</h1>      
+        <h1>Completed Orders</h1>      
       </div>
     <div class="table-responsive">
         <table style="width:100%" class="table">
@@ -18,14 +18,14 @@
                 <th>Status</th>
                 <th>Order Items</th>
             </tr>
-            @for ($i = 0; $i < count($Orders); $i++)
+            @for ($i = 0; $i < count($completedOrders); $i++)
                 <tr>
                     <th>{{$i+1}}</th>
-                    <th>{{$Orders[$i]->customer->name}}</th>
-                    <th>{{$Orders[$i]->instructions}}</th>
-                    <th>{{$Orders[$i]->total_price}}</th>
-                    <th>{{$Orders[$i]->status}}</th>
-                    <th class="crud"><a href='/view-order-item/{{$Orders[$i]->id}}' class="btn btn-success">View</a></th>
+                    <th>{{$completedOrders[$i]->customer->name}}</th>
+                    <th>{{$completedOrders[$i]->instructions}}</th>
+                    <th>{{$completedOrders[$i]->total_price}}</th>
+                    <th>{{$completedOrders[$i]->status}}</th>
+                    <th class="crud"><a href='/view-order-item/{{$completedOrders[$i]->id}}' class="btn btn-success">View</a></th>
                 </tr>
             @endfor
         </table>

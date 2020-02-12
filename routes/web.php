@@ -18,7 +18,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::get('/home', 'HomeController@index')->name('home');
+// Route::get('/home', 'HomeController@index')->name('home');
 
 //Restaurant Routes
 Route::get('/restaurant', 'RestaurantController@index');
@@ -68,6 +68,19 @@ Route::get('/delete-unit/{id}','UnitController@deleteUnit');
 Route::get('/customer', 'CustomerController@index');
 Route::get('/customer-address/{id}','CustomerController@address');
 Route::get('/customer-order','CustomerController@order');
+
+
+//Order
+Route::get('/home','OrderController@index');
+Route::get('/order-complete/{id}','OrderController@complete');
+Route::get('/order-completed','OrderController@completedOrder');
+Route::get('/customer-order/{id}','OrderController@orderByCustomerId');
+
+
+//Order Item
+Route::get('/view-order-item/{id}','OrderItemController@getItems');
+
+
 
 
 

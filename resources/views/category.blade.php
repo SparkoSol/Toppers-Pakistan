@@ -4,6 +4,9 @@
 
 @section('content')
 <div style="padding:50px;">
+    <div class="page-header">
+        <h1>Categories</h1>      
+      </div>
     <div style="padding:20px;">
         <a href="{{url('/add-category')}}" class="btn btn-primary">Add New Category</a>
     </div>

@@ -28,4 +28,20 @@ class OrderItemController extends Controller
     {
         return OrderItem::where('id', $id)->first();
     }
+
+    public function storeOrderItemApi(){
+        $orderItem = new OrderItem();
+        $orderItem->order_id = request('order_id');
+        $orderItem->product_id = request('product_id');
+        $orderItem->quantity = request('quantity');
+
+        $orderItem->save();
+        return $orderItem;
+    }
+
+    public function getItems($id)
+    {
+        $orderItems = OrderItem::where('order_id',$id)->get();
+        return view('order-item',compact('orderItems'));
+    }
 }

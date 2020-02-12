@@ -5,6 +5,9 @@
 @section('content')
 
 <div style="padding:50px;">
+    <div class="page-header">
+        <h1>Customers</h1>      
+      </div>
     <div class="table-responsive">
         <table style="width:100%" class="table">
             <tr>
@@ -22,7 +25,7 @@
                     <th>{{$customers[$i]->email}}</th>
                     <th>{{$customers[$i]->phone}}</th>
                 <th class="crud"><a href='/customer-address/{{$customers[$i]->id}}' class="btn btn-success">View</a></th>
-                    <th class="crud"><a href='/view-restaurant/' class="btn btn-success">View</a></th>
+                    <th class="crud"><a href='/customer-order/{{$customers[$i]->id}}' class="btn btn-success">View</a></th>
                 </tr>
             @endfor
         </table>

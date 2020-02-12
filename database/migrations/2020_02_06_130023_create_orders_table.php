@@ -21,7 +21,8 @@ class CreateOrdersTable extends Migration
             $table->foreign('address_id')->references('id')->on('addresses')->onDelete('cascade');
             $table->integer('total_price');
             $table->string('status')->default('Pending');
-            $table->timestamps();
+            $table->string('instructions')->default("No Instructions");
+            $table->timestamps();  
         });
     }
 

@@ -4,6 +4,9 @@
 
 @section('content')
 <div style="padding:50px;">
+    <div class="page-header">
+        <h1>Units</h1>      
+      </div>
     <div style="padding:20px;">
         <a href="{{url('/add-unit')}}" class="btn btn-primary">Add New Unit</a>
     </div>

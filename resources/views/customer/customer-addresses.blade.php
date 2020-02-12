@@ -5,6 +5,9 @@
 @section('content')
 
 <div style="padding:50px;">
+    <div class="page-header">
+        <h1>Addresses</h1>      
+      </div>
     <div class="table-responsive">
         <table style="width:100%" class="table">
             <tr>
