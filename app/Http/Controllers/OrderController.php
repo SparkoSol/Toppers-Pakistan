@@ -39,7 +39,7 @@ class OrderController extends Controller
     public function complete($id)
     {
         Order::where('id',$id)->update(['status'  => 'Complete']);
-        return redirect('/order-page');
+        return redirect('/home');
 
     }
     public function apiIndex()

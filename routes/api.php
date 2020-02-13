@@ -51,17 +51,26 @@ Route::middleware('auth:api')->get('/customer-user', function (Request $request)
     return $request->user();
 });
 
+//Customer
 Route::post('/register-customer','CustomerController@register');
-
 Route::post('/login-customer','CustomerController@login');
-
+Route::post('/change-customer-password/{id}','CustomerController@changePassword');
 
 Route::post('/address','AddressController@storeAddress');
 Route::get('/address/{id}','AddressController@getAddressByCustomerId');
-Route::get('/delete-address/{id}','AddressController@deleteAddress');
+Route::delete('/address/{id}','AddressController@deleteAddress');
 
 
 Route::post('/order','OrderController@storeOrderApi');
 Route::post('/order-item','OrderItemController@storeOrderItemApi');
+
+Route::get('/customer-order/{id}','CustomerController@getOrders');
+
+Route::get('/order-items/{id}','OrderItemController@getItemsApi');
+Route::get('/order-item-product/{id}','OrderItemController@orderItemProduct');
+
+
+//Carosel
+Route::get('/carosel','CaroselController@indexApi');
 
 

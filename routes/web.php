@@ -82,12 +82,19 @@ Route::get('/view-order-item/{id}','OrderItemController@getItems');
 
 
 
+//Carosal Routes
+Route::get('/carosel', 'CaroselController@index');
+Route::get('/add-carosel', 'CaroselController@addCarosel');
+Route::post('/store-carosel','CaroselController@storeCarosel');
+Route::get('/edit-carosel/{id}','CaroselController@editCarosel');
+Route::post('/update-carosel/{id}','CaroselController@updateCarosel');
+Route::get('/delete-carosel/{id}','CaroselController@deleteCarosel');
 
 
 
 
-Route::get('/users', function() {
-    return view('users')->with('restaurant', [App\Restaurant::all()]);
-});
+// Route::get('/users', function() {
+//     return view('users')->with('restaurant', [App\Restaurant::all()]);
+// });
 
 

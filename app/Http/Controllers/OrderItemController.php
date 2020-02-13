@@ -42,6 +42,15 @@ class OrderItemController extends Controller
     public function getItems($id)
     {
         $orderItems = OrderItem::where('order_id',$id)->get();
-        return view('order-item',compact('orderItems'));
+        return view('order-item',compact('orderItems'));    
+    }
+
+    public function getItemsApi($id)
+    {
+        return OrderItem::where('order_id',$id)->get();
+    }
+
+    public function orderItemProduct($id){
+        return OrderItem::where('id',$id)->first()->product;
     }
 }

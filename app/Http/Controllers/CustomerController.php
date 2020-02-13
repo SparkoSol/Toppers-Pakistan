@@ -40,6 +40,21 @@ class CustomerController extends Controller
         return view('customer.customer-addresses')->with('addresses', Customer::where('id',$id)->first()->addresses);
 	}
 
+	public function getOrders($id){
+		return Customer::where('id',$id)->first()->orders;
+	}
+
+	public function changePassword($id){
+		$customer = Customer::where('id',$id)->first();
+		if(Hash::check(request('oldpassword'),$customer->password)){
+			$customer->update([
+				'password'  => bcrypt(request('password')),
+			]);
+			echo($customer);
+		}else{
+			return "error";
+		}
+	}
 
     public function register(){
 
