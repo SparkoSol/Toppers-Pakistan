@@ -6,6 +6,7 @@ use App\Restaurant;
 use App\Product;
 use App\Unit;
 use App\Category;
+use App\OrderItem;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -36,6 +37,33 @@ class ProductController extends Controller
         return view('restaurant.product.add-product',compact('restaurants','units','categories'));
     }
 
+    public function addProductOrder()
+    {
+        $products = Product::all();
+        return view('restaurant.product.add-product-order',compact('products'));
+    }
+
+    public function addProductOrderList()
+    {
+        session_start();
+        $_SESSION['items'] = array();
+        
+        for ($i=0; $i < count(request('check_list')) ; $i++) { 
+            $orderItem  =  new OrderItem();
+            $orderItem->product_id =  request('check_list')[$i];
+            $orderItem->quantity =  request('quantity')[request('check_list')[$i]];
+
+            array_push($_SESSION['items'],$orderItem);
+        }
+
+        // for ($i = 0; $i < count($_SESSION['items']); $i++){
+        //     echo $_SESSION['items'][$i];
+        // }
+
+        return redirect('/punch-order');
+
+    }
+    
     public function storeProduct(Request $request) {
         $product = new Product();
         $product->name = request('name');

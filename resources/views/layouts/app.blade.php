@@ -55,26 +55,53 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                    @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('restaurant') }}">
                                         {{ __('Restaurants') }}
                                     </a>
+                                    @endif
+                                    @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('branch') }}">
                                         {{ __('Restaurant Branches') }}
                                     </a>
+                                    @endif
+                                    @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('product') }}">
                                         {{ __('Restaurant Products') }}
                                     </a>
+                                    @endif
+                                    @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('customer') }}">
                                         {{ __('Customers') }}
                                     </a>
+                                    @endif
+                                    @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('category') }}">
                                         {{ __('Category') }}
                                     </a>
+                                    @endif
+                                    @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('unit') }}">
                                         {{ __('Unit') }}
                                     </a>
+                                    @endif
+                                    @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('carosel') }}">
                                         {{ __('Ads Image') }}
+                                    </a>
+                                    @endif
+                                    @if(@Auth::user()->type == "Main Admin")
+                                    <a class="dropdown-item" href="{{ url('register-admin') }}">
+                                        {{ __('Register') }}
+                                    </a>
+                                    @endif
+                                    @if(@Auth::user()->type == "Sub Admin")
+                                    <a class="dropdown-item" href="{{ url('punch-order') }}">
+                                        {{ __('Punch Order') }}
+                                    </a>
+                                    @endif
+                                    <a class="dropdown-item" href="{{ url('register-admin') }}">
+                                        {{ __('Reports') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                        onclick="event.preventDefault();

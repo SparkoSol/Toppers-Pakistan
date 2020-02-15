@@ -9,6 +9,9 @@ class Order extends Model
     public function customer(){
         return $this->belongsTo(Customer::class);
     }
+    public function branch(){
+        return $this->belongsTo(Customer::class);
+    }
     public function orderItems(){
         return $this->hasMany(OrderItem::class);
     }

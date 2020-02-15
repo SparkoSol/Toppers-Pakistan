@@ -20,6 +20,8 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('type');
+            $table->integer('branch_id')->unsigned()->nullable();
+            $table->foreign('branch_id')->references('id')->on('restaurant_branches')->onDelete('cascade');
             $table->rememberToken();
             $table->timestamps();
         });

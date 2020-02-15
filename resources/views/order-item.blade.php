@@ -29,5 +29,5 @@
 @endsection
 
 @else 
-<script>window.location = "/home";</script>
+<script>window.location = "/login";</script>
 @endauth 

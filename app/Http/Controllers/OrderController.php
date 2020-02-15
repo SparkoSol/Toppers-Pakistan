@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Order;
+use App\OrderItem;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -20,7 +22,12 @@ class OrderController extends Controller
 
     public function index()
     {
-        $pendingOrders = Order::where('status','Pending')->get();
+        if(Auth::user()->type == "Main Admin"){
+            $pendingOrders = Order::where('status','Pending')->get();
+        }
+        else{
+            $pendingOrders = Order::where('status','Pending')->where('branch_id',Auth::user()->branch_id)->get();
+        }
         return view('order',compact('pendingOrders'));
     }
 
@@ -32,7 +39,13 @@ class OrderController extends Controller
 
     public function completedOrder()
     {
-        $completedOrders = Order::where('status','Complete')->get();
+        if(Auth::user()->type == "Main Admin"){
+            $completedOrders = Order::where('status','Complete')->get();
+        
+        }
+        else{
+            $completedOrders = Order::where('status','Complete')->where('branch_id',Auth::user()->branch_id)->get();
+        }
         return view('completed-order',compact('completedOrders'));
     }
 
@@ -62,5 +75,39 @@ class OrderController extends Controller
         $order->save();
         return $order;
 
+    }
+
+    public function punchOrder(){    
+
+        session_start();
+
+        return view('punch-order');
+    }
+
+
+    public function storeOrderAdmin(){
+        session_start();
+        $order = new Order();
+        $order->customer_id = 1;
+        $order->address_id = 1;
+        $order->branch_id = Auth::user()->branch_id;
+        $order->total_price = $_SESSION['total'];
+        $order->instructions = "No Instructions";
+        $order->status = "Complete";
+
+        $order->save();
+        
+
+
+        if (isset($_SESSION['items'])){
+            for ($i = 0; $i < count($_SESSION['items']); $i++){
+                $_SESSION['items'][$i]->order_id = $order->id;
+                $_SESSION['items'][$i]->save();
+            }
+        }
+
+        session_unset();
+        session_destroy();
+        return redirect('home');
     }
 }

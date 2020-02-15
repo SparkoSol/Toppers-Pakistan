@@ -16,7 +16,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Auth::routes();
+Route::get('/register-admin','UserController@registerAdmin');
+Route::post('/register','UserController@register');
+
+// Auth::routes();
+Auth::routes(['register'=>false]);
 
 // Route::get('/home', 'HomeController@index')->name('home');
 
@@ -45,6 +49,12 @@ Route::post('/store-product','ProductController@storeProduct');
 Route::get('/edit-product/{id}','ProductController@editProduct');
 Route::post('/update-product/{id}','ProductController@updateProduct');
 Route::get('/delete-product/{id}','ProductController@deleteProduct');
+Route::get('/add-product-order','ProductController@addProductOrder');
+Route::post('/add-product-order-list','ProductController@addProductOrderList');
+Route::post('/store-order-admin','OrderController@storeOrderAdmin');
+
+
+
 
 
 //Category Route
@@ -75,6 +85,7 @@ Route::get('/home','OrderController@index');
 Route::get('/order-complete/{id}','OrderController@complete');
 Route::get('/order-completed','OrderController@completedOrder');
 Route::get('/customer-order/{id}','OrderController@orderByCustomerId');
+Route::get('/punch-order','OrderController@punchOrder');
 
 
 //Order Item
@@ -89,6 +100,9 @@ Route::post('/store-carosel','CaroselController@storeCarosel');
 Route::get('/edit-carosel/{id}','CaroselController@editCarosel');
 Route::post('/update-carosel/{id}','CaroselController@updateCarosel');
 Route::get('/delete-carosel/{id}','CaroselController@deleteCarosel');
+
+
+
 
 
 

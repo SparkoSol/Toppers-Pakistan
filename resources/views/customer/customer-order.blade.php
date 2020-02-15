@@ -33,7 +33,9 @@
 </div>
 
 @endsection
-
-@else 
+@else
 <script>window.location = "/home";</script>
+@endif
+@else 
+<script>window.location = "/login";</script>
 @endauth 
