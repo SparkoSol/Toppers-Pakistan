@@ -1,7 +1,7 @@
 @auth 
 
 @extends('layouts.app')
-
+@if(Auth::user()->type == "Sub Admin")
 @section('content')
 <div style="padding:50px;">
     <div class="page-header">
@@ -46,7 +46,9 @@
 </div>
 
 @endsection
-
+@else
+<script>window.location = "/home";</script>
+@endif
 @else 
 <script>window.location = "/login";</script>
 @endauth 

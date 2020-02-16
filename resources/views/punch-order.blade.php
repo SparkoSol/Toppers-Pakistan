@@ -1,6 +1,7 @@
 @auth 
 
 @extends('layouts.app')
+@if(Auth::user()->type == "Sub Admin")
 
 @section('content')
 <?php  $_SESSION['total'] = 0; ?>    
@@ -75,6 +76,9 @@
     </form>
 </div>
 @endsection
+@else
+<script>window.location = "/home";</script>
+@endif
 @else 
 <script>window.location = "/login";</script>
 @endauth 

@@ -103,7 +103,8 @@ Route::get('/delete-carosel/{id}','CaroselController@deleteCarosel');
 
 
 
-
+Route::get('report','ReportsController@daily');
+Route::get('report-productWise','ReportsController@productWise');
 
 
 

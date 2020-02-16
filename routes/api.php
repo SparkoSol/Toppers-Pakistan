@@ -74,3 +74,5 @@ Route::get('/order-item-product/{id}','OrderItemController@orderItemProduct');
 Route::get('/carosel','CaroselController@indexApi');
 
 
+
+

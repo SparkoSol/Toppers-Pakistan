@@ -71,6 +71,7 @@ class OrderController extends Controller
         $order->address_id = request('address_id');
         $order->total_price = request('total_price');
         $order->instructions = request('instruction');
+        $order->branch_id = request('branch_id');
 
         $order->save();
         return $order;

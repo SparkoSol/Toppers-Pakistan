@@ -100,7 +100,7 @@
                                         {{ __('Punch Order') }}
                                     </a>
                                     @endif
-                                    <a class="dropdown-item" href="{{ url('register-admin') }}">
+                                    <a class="dropdown-item" href="{{ url('report') }}">
                                         {{ __('Reports') }}
                                     </a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
