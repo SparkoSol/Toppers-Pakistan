@@ -10,7 +10,7 @@ class Order extends Model
         return $this->belongsTo(Customer::class);
     }
     public function branch(){
-        return $this->belongsTo(Customer::class);
+        return $this->belongsTo(RestaurantBranch::class);
     }
     public function orderItems(){
         return $this->hasMany(OrderItem::class);

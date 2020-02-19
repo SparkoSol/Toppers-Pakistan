@@ -25,13 +25,13 @@ Auth::routes(['register'=>false]);
 // Route::get('/home', 'HomeController@index')->name('home');
 
 //Restaurant Routes
-Route::get('/restaurant', 'RestaurantController@index');
-Route::get('/add-restaurant', 'RestaurantController@addRestaurant');
-Route::post('/store-restaurant','RestaurantController@storeRestaurant');
-Route::get('/edit-restaurant/{id}','RestaurantController@editRestaurant');
-Route::post('/update-restaurant/{id}','RestaurantController@updateRestaurant');
-Route::get('/delete-restaurant/{id}','RestaurantController@deleteRestaurant');
-Route::get('/view-restaurant/{id}','RestaurantController@viewRestaurant');
+// Route::get('/restaurant', 'RestaurantController@index');
+// Route::get('/add-restaurant', 'RestaurantController@addRestaurant');
+// Route::post('/store-restaurant','RestaurantController@storeRestaurant');
+// Route::get('/edit-restaurant/{id}','RestaurantController@editRestaurant');
+// Route::post('/update-restaurant/{id}','RestaurantController@updateRestaurant');
+// Route::get('/delete-restaurant/{id}','RestaurantController@deleteRestaurant');
+// Route::get('/view-restaurant/{id}','RestaurantController@viewRestaurant');
 
 
 //Restaurant Branch Routes
@@ -104,7 +104,28 @@ Route::get('/delete-carosel/{id}','CaroselController@deleteCarosel');
 
 
 Route::get('report','ReportsController@daily');
+Route::get('report-preview-order-daily','ReportsController@dailyPrint');
+
+
 Route::get('report-productWise','ReportsController@productWise');
+Route::get('report-monthly','ReportsController@monthly');
+Route::get('report-monthly-product','ReportsController@monthlyProduct');
+Route::get('report-yearly','ReportsController@yearly');
+Route::get('report-yearly-product','ReportsController@yearlyProduct');
+Route::get('report-custom','ReportsController@custom');
+Route::get('report-custom-product','ReportsController@customProduct');
+
+
+Route::post('report-daily','ReportsController@dailySpecific');
+Route::post('report-monthly-specific','ReportsController@monthlySpecific');
+Route::post('report-yearly-specific','ReportsController@yearlySpecific');
+Route::post('report-custom-specific','ReportsController@customSpecific');
+
+
+Route::post('report-daily-product','ReportsController@productWiseDaily');
+Route::post('report-monthly-product-specific','ReportsController@monthlyProductSpecific');
+Route::post('report-yearly-product-specific','ReportsController@yearlyProductSpecific');
+Route::post('report-custom-product-specific','ReportsController@customProductSpecific');
 
 
 

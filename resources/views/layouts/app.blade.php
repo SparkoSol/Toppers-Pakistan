@@ -11,6 +11,8 @@
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
+    <script type="text/javascript" src="js/jquery.printPage.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 
     <!-- Fonts -->
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
@@ -55,11 +57,11 @@
                                 </a>
 
                                 <div class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                    @if(@Auth::user()->type == "Main Admin")
+                                    {{-- @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('restaurant') }}">
                                         {{ __('Restaurants') }}
                                     </a>
-                                    @endif
+                                    @endif --}}
                                     @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('branch') }}">
                                         {{ __('Restaurant Branches') }}

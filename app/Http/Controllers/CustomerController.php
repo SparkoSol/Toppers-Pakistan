@@ -30,7 +30,18 @@ class CustomerController extends Controller
     public function apiIndexById($id)
     {
         return Customer::where('id', $id)->first();
-    }
+	}
+	
+
+	public function apiCheckUserExists(){
+		$allCustomers = Customer::all();
+		foreach ($allCustomers as $customerOne) {
+			if($customerOne->email == request('email')){
+				return "true";
+			}
+		}
+		return "false";
+	}
 
 	public function index() {
         return view('customer')->with('customers', Customer::all());
