@@ -63,6 +63,13 @@ class OrderController extends Controller
         return view('order-invoice',compact('order','orderItems'));
     }
 
+    public function invoicePrint($id)
+    {
+        $order =  Order::where('id',$id)->first();
+        $orderItems = $order->orderItems;
+        return view('order-invoice-print',compact('order','orderItems'));
+    }
+
 
     public function apiIndex()
     {

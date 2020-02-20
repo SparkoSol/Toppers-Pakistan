@@ -4,34 +4,23 @@
 
 @section('content')
 
-<div class="d-flex justify-content-center">
-    <div style="width:70%; padding:50px;" id="content">
+<div class="d-flex justify-content-center" id="content">
+    <div style="width:70%; padding:50px;">
         <div class="page-header row">
-            <div class="col-md-9"align="center" id="title">
+            <div class="col-md-12" align="center">
                 <h1>Toppers Pakistan</h1>
                 <h3>Address</h3>
             </div>
-            <div class="col-md-3">
-                <button onclick="window.location.href = '/invoice-print/{{$order->id}}' " class="btn btn-primary">Print</button>
-            <Button class="btn btn-primary" onclick="window.location.href = '/order-complete/{{$order->id}}' ">Complete</Button>
-                <script>
-                function myFunction() {
-                  var backup = document.body.innerHTML;
-                  var title = document.getElementById('title').innerHTML;
-                  var info = document.getElementById('info').innerHTML;
-                  var items = document.getElementById('items').innerHTML;
-                  var bill = document.getElementById('bill').innerHTML;
-                  var content = document.getElementById('content').innerHTML;
-                  var space = document.getElementById('space').innerHTML;
-                  document.body.innerHTML = content;
-                  window.print();
-                  document.body.innerHTML = backup;
-                }
-                </script>
-            </div>
         </div>
-
-        <div class="page-header row" id="info">
+        <script type="text/javascript">
+        $(document).ready(function(){
+        window.print();
+        setTimeout("closePrintView()", 300);
+    });
+    function closePrintView() {
+        document.location.href = '/home';
+    }    </script>
+        <div class="page-header row">
             <div class="col-md-6">
                 <h1>Order # {{$order->id}}</h1>
                 <h2>Delivery</h2>
@@ -45,7 +34,7 @@
                 <h3>{{$order->address->mobile}}</h3>
             </div>
         </div>
-        <div class="table-responsive" id="items">
+        <div class="table-responsive">
             <table style="width:100%" class="table">
                 <tr class="thead-light">
                     <th colspan="2">Item</th>
