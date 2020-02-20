@@ -84,6 +84,7 @@ Route::get('/customer-order','CustomerController@order');
 Route::get('/home','OrderController@index');
 Route::get('/order-complete/{id}','OrderController@complete');
 Route::get('/order-completed','OrderController@completedOrder');
+Route::get('/invoice/{id}','OrderController@invoice');
 Route::get('/customer-order/{id}','OrderController@orderByCustomerId');
 Route::get('/punch-order','OrderController@punchOrder');
 

@@ -30,7 +30,7 @@
                     <th>{{$pendingOrders[$i]->total_price}}</th>
                     <th>{{$pendingOrders[$i]->status}}</th>
                     <th class="crud"><a href='/view-order-item/{{$pendingOrders[$i]->id}}' class="btn btn-success">View</a></th>
-                    <th class="crud"><a href='/order-complete/{{$pendingOrders[$i]->id}}' class="btn btn-success">Complete</a></th>
+                    <th class="crud"><a href='/invoice/{{$pendingOrders[$i]->id}}' class="btn btn-success">Invoice</a></th>
                 </tr>
             @endfor
         </table>

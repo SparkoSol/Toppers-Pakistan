@@ -55,6 +55,15 @@ class OrderController extends Controller
         return redirect('/home');
 
     }
+
+    public function invoice($id)
+    {
+        $order =  Order::where('id',$id)->first();
+        $orderItems = $order->orderItems;
+        return view('order-invoice',compact('order','orderItems'));
+    }
+
+
     public function apiIndex()
     {
         return Order::all();
