@@ -62,6 +62,9 @@
                                         {{ __('Restaurants') }}
                                     </a>
                                     @endif --}}
+                                    <a class="dropdown-item" href="{{ url('/home') }}">
+                                        {{ __('Home/Orders') }}
+                                    </a>
                                     @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('branch') }}">
                                         {{ __('Restaurant Branches') }}
@@ -98,8 +101,13 @@
                                     </a>
                                     @endif
                                     @if(@Auth::user()->type == "Sub Admin")
-                                    <a class="dropdown-item" href="{{ url('punch-order') }}">
+                                    <a class="dropdown-item" href="{{ url('add-customer-info') }}">
                                         {{ __('Punch Order') }}
+                                    </a>
+                                    @endif
+                                    @if(@Auth::user()->type == "Main Admin")
+                                    <a class="dropdown-item" href="{{ url('notification') }}">
+                                        {{ __('Notification') }}
                                     </a>
                                     @endif
                                     <a class="dropdown-item" href="{{ url('report') }}">

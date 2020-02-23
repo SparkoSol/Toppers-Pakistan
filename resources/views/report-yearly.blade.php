@@ -73,13 +73,13 @@ function myFunction() {
                     <th>Total Sale</th>
                 </tr>
                 @for ($i = 0; $i < count($orders); $i++)
-                <?php if($orders[$i]->customer_id == '1' ) {
-                    $text = "Punched From Admin Panel";
-                    $color = '#0bbd00';
-                }else{
-                    $text = "App Order";
-                    $color = '#3490dc';
-                }  ?>
+                <?php if($orders[$i]->origin == 'Branch Order' ) {
+                  $text = $orders[$i]->origin;
+                  $color = '#0bbd00';
+              }else{
+                  $text = $orders[$i]->origin;
+                  $color = '#3490dc';
+              }  ?>
                 <tr style="color:{{$color}};;">
                     <td>{{$i+1}}</td>
                     

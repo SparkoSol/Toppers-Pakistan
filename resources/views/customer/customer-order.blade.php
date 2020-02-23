@@ -1,7 +1,7 @@
 @auth 
 
 @extends('layouts.app')
-
+@if(Auth::user()->type == "Main Admin")
 @section('content')
 
 <div style="padding:50px;">

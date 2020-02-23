@@ -18,7 +18,7 @@
                 <a class="nav-link" href="/report-monthly">Monthly Report</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link" href="/report-monthly-prouct">Monthly Product Wise Report</a>
+                <a class="nav-link" href="/report-monthly-product">Monthly Product Wise Report</a>
               </li>
               <li class="nav-item">
                 <a class="nav-link" href="/report-yearly">Yearly Report</a>
@@ -72,11 +72,11 @@ function myFunction() {
                     <th>Total Sale</th>
                 </tr>
                 @for ($i = 0; $i < count($orders); $i++)
-                <?php if($orders[$i]->customer_id == '1' ) {
-                  $text = "Punched From Admin Panel";
+                <?php if($orders[$i]->origin == 'Branch Order' ) {
+                  $text = $orders[$i]->origin;
                   $color = '#0bbd00';
               }else{
-                  $text = "App Order";
+                  $text = $orders[$i]->origin;
                   $color = '#3490dc';
               }  ?>
               <tr style="color:{{$color}};">

@@ -23,6 +23,8 @@ class CreateOrdersTable extends Migration
             $table->foreign('branch_id')->references('id')->on('restaurant_branches')->onDelete('cascade');
             $table->integer('total_price');
             $table->string('status')->default('Pending');
+            $table->string('origin')->default('App Order');
+            $table->boolean('delivery')->default(true);
             $table->string('instructions')->nullable()->default("No Instructions");
             $table->timestamps();  
         });

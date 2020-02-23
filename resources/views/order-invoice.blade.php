@@ -5,11 +5,14 @@
 @section('content')
 
 <div class="d-flex justify-content-center">
-    <div style="width:70%; padding:50px;" id="content">
+    <div style="width:70%;padding:50px;" id="content">
+        <div class="d-flex justify-content-center" style="padding:10px;">
+            <img width="150" height="150" src="/images/ToppersPakistanLogo.png" alt="">
+        </div>
         <div class="page-header row">
             <div class="col-md-9"align="center" id="title">
                 <h1>Toppers Pakistan</h1>
-                <h3>Address</h3>
+                <h3>{{$order->branch->name}}</h3>
             </div>
             <div class="col-md-3">
                 <button onclick="window.location.href = '/invoice-print/{{$order->id}}' " class="btn btn-primary">Print</button>
@@ -70,10 +73,17 @@
                 <h1>Total</h1>
             </div>
             <div align="right">
-                <h1>Rs. {{$order->total_price  - 80}}</h1>
+                @if($order->delivery)
+                <h1>Rs. {{$order->total_price  - 50}}</h1>
                 <hr>
-                <h1>Rs. 80</h1>
+                <h1>Rs. 50</h1>
                 <hr>
+                @else
+                <h1>Rs. {{$order->total_price}}</h1>
+                <hr>
+                <h1>Rs. 0.0</h1>
+                <hr>
+                @endif
                 <h1>Rs. {{$order->total_price}}</h1>
             </div>
         </div>

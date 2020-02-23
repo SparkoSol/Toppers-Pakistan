@@ -6,10 +6,13 @@
 
 <div class="d-flex justify-content-center" id="content">
     <div style="width:70%; padding:50px;">
+        <div class="d-flex justify-content-center" style="padding:10px;">
+            <img width="150" height="150" src="/images/ToppersPakistanLogo.png" alt="">
+        </div>
         <div class="page-header row">
             <div class="col-md-12" align="center">
                 <h1>Toppers Pakistan</h1>
-                <h3>Address</h3>
+                <h3>{{$order->branch->name}}</h3>
             </div>
         </div>
         <script type="text/javascript">
@@ -18,7 +21,7 @@
         setTimeout("closePrintView()", 300);
     });
     function closePrintView() {
-        document.location.href = '/home';
+        document.location.href = '/invoice/{{$order->id}}';
     }    </script>
         <div class="page-header row">
             <div class="col-md-6">
@@ -59,10 +62,17 @@
                 <h1>Total</h1>
             </div>
             <div align="right">
-                <h1>Rs. {{$order->total_price  - 80}}</h1>
+                @if($order->delivery)
+                <h1>Rs. {{$order->total_price  - 50}}</h1>
                 <hr>
-                <h1>Rs. 80</h1>
+                <h1>Rs. 50</h1>
                 <hr>
+                @else
+                <h1>Rs. {{$order->total_price}}</h1>
+                <hr>
+                <h1>Rs. 0.0</h1>
+                <hr>
+                @endif
                 <h1>Rs. {{$order->total_price}}</h1>
             </div>
         </div>

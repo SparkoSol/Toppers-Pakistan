@@ -47,18 +47,14 @@ class ProductController extends Controller
     {
         session_start();
         $_SESSION['items'] = array();
-        
-        for ($i=0; $i < count(request('check_list')) ; $i++) { 
-            $orderItem  =  new OrderItem();
-            $orderItem->product_id =  request('check_list')[$i];
-            $orderItem->quantity =  request('quantity')[request('check_list')[$i]];
-
-            array_push($_SESSION['items'],$orderItem);
+        if( request('check_list') != null){
+            for ($i=0; $i < count(request('check_list')) ; $i++) { 
+                $orderItem  =  new OrderItem();
+                $orderItem->product_id =  request('check_list')[$i];
+                $orderItem->quantity =  request('quantity')[request('check_list')[$i]];
+                array_push($_SESSION['items'],$orderItem);
+            }
         }
-
-        // for ($i = 0; $i < count($_SESSION['items']); $i++){
-        //     echo $_SESSION['items'][$i];
-        // }
 
         return redirect('/punch-order');
 

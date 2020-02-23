@@ -83,11 +83,15 @@ Route::get('/customer-order','CustomerController@order');
 //Order
 Route::get('/home','OrderController@index');
 Route::get('/order-complete/{id}','OrderController@complete');
+Route::get('/reject-order/{id}','OrderController@reject');
 Route::get('/order-completed','OrderController@completedOrder');
 Route::get('/invoice/{id}','OrderController@invoice');
 Route::get('/invoice-print/{id}','OrderController@invoicePrint');
 Route::get('/customer-order/{id}','OrderController@orderByCustomerId');
 Route::get('/punch-order','OrderController@punchOrder');
+Route::get('/add-customer-info','OrderController@addCustomerInfo');
+Route::post('/store-customer-info','OrderController@storeCustomerInfo');
+
 
 
 //Order Item
@@ -130,6 +134,9 @@ Route::post('report-yearly-product-specific','ReportsController@yearlyProductSpe
 Route::post('report-custom-product-specific','ReportsController@customProductSpecific');
 
 
+//Firebase
+Route::get('notification','FirebaseController@index');
+Route::post('/store-notification','FirebaseController@store');
 
 // Route::get('/users', function() {
 //     return view('users')->with('restaurant', [App\Restaurant::all()]);
