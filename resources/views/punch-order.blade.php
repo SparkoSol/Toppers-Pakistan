@@ -106,9 +106,15 @@
 <div class="container d-flex justify-content-center">
         <div class="form-group row mb-1">
             <div class="col-md-12 offset-md-5">
+                @if(!isset($_SESSION['items']))
+                <button type="submit" class="btn btn-primary" disabled>
+                    {{ __('Punch Order') }}
+                </button>
+                @else
                 <button type="submit" class="btn btn-primary">
                     {{ __('Punch Order') }}
                 </button>
+                @endif
             </div>
         </div>
 </div>

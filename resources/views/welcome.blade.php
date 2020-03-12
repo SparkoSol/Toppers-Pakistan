@@ -81,7 +81,9 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    Toppers Pakistan
+                    <div class="d-flex justify-content-center">
+                        <img width="700" height="400" src="/images/ToppersPakistanLogo.png" alt="">
+                    </div>
                 </div>
             </div>
         </div>

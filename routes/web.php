@@ -143,3 +143,6 @@ Route::post('/store-notification','FirebaseController@store');
 // });
 
 
+//Shop
+
+// Route::get('/shop','ShopController@index');

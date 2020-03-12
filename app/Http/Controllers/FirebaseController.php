@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 
+use Google\Cloud\Firestore\FirestoreClient;
 use Kreait\Firebase;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\ServiceAccount;
@@ -26,24 +27,23 @@ class FirebaseController extends Controller
     }
 
     public function store(){
+
+        $db = new FirestoreClient([
+            'projectId'=> 'toppers-pakistan'
+        ]);
+
         $title = request('title');
         $message = request('message');
-        $serviceAccount = ServiceAccount::fromJsonFile(__DIR__.'/toppers-pakistan-firebase-adminsdk-aeb8a-492d961c12.json');
-        $firebase = (new Factory)
-        ->withServiceAccount($serviceAccount)
-        ->withDatabaseUri('https://toppers-pakistan.firebaseio.com/')
-        ->create();
+        $time = now();
+        $data = [
+            'title' => $title,
+            'message' => $message,
+            'timestamp' => $time 
+        ];
 
-        $database = $firebase->getDatabase();
-
-        $newPost = $database
-        ->getReference('notifications')
-        ->push([
-        'title' => $title ,
-        'message' => $message
-        ]);
-        echo '<pre>';
-        print_r($newPost->getvalue());
+        $addedDocRef = $db->collection('notifications')->newDocument();
+        $addedDocRef->set($data);
+        
         return redirect('notification');    
     }
 }

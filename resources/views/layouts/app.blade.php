@@ -26,7 +26,9 @@
         <nav class="navbar navbar-expand-md navbar-light bg-white shadow-sm">
             <div class="container">
                 <a class="navbar-brand" href="{{ url('/home') }}">
-                    Toppers Pakistan
+                    <div class="d-flex justify-content-center">
+                        <img width="50" height="50" src="/images/ToppersPakistanLogo.png" alt="">
+                    </div>
                 </a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="{{ __('Toggle navigation') }}">
                     <span class="navbar-toggler-icon"></span>
@@ -65,6 +67,9 @@
                                     <a class="dropdown-item" href="{{ url('/home') }}">
                                         {{ __('Home/Orders') }}
                                     </a>
+                                    {{-- <a class="dropdown-item" href="{{ url('/shop') }}">
+                                        {{ __('Shop') }}
+                                    </a> --}}
                                     @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('branch') }}">
                                         {{ __('Restaurant Branches') }}

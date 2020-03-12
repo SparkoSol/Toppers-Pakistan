@@ -74,6 +74,8 @@ Route::get('/order-item-product/{id}','OrderItemController@orderItemProduct');
 //Carosel
 Route::get('/carosel','CaroselController@indexApi');
 
+Route::post('/orderConfirmation','OrderController@sendEmailApi');
+
 
 
 

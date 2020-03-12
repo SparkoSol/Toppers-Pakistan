@@ -5,9 +5,15 @@ namespace App\Http\Controllers;
 use App\Order;
 use App\OrderItem;
 use App\Customer;
+use App\RestaurantBranch;
 use App\Address;
+use App\Product;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Http\Request;
+use App\Mail\MailSender;
+use App\Mail\MailSenderApi;
+
 
 class OrderController extends Controller
 {
@@ -107,6 +113,27 @@ class OrderController extends Controller
 
     }
 
+    public function sendEmailApi() {
+        
+        $order = new Order();
+        $order = request('order');
+        $customer = Customer::where('id',$order['customer_id'])->first();
+        $branch = RestaurantBranch::where('id',$order['branch_id'])->first();
+        $data = array(
+            'name' => $customer->name,
+            'branch' => $branch->name,
+            'price' => $order['total_price'],
+            'delivery' => $order['delivery'],
+            'items' => request('orderItems'),
+            'orderId' => $order['id']
+        );
+
+        Mail::to($customer->email)->send(
+            new MailSenderApi($data,'Order Placed')
+        );
+
+    }
+
     public function addCustomerInfo(){    
         return view('add-customer-order');
     }
@@ -115,17 +142,43 @@ class OrderController extends Controller
 
         session_start();
 
+        $time = date('h:i:sa');
+
         $allCustomers = Customer::all();
 		foreach ($allCustomers as $customer) {
 			if($customer->email == request('email')){
                 $address = new Address();
                 $address->customer_id = $customer->id;
-                $address->description = request('description');
-                $address->house = request('house');
-                $address->street = request('street');
-                $address->area = request('area');
-                $address->mobile = request('phone');
-                $address->city = request('city');
+                if(request('description') == null){
+                    $address->description = "toppers";
+                }else{
+                    $address->description = request('description');
+                }
+                if(request('house') == null){
+                    $address->house = 'toppers';
+                }else{
+                    $address->house = request('house');
+                }
+                if(request('street') == null){
+                    $address->street = 'toppers';
+                }else{
+                    $address->street = request('street');
+                }
+                if(request('area') == null){
+                    $address->area = 'toppers';
+                }else{
+                    $address->area = request('area');
+                }
+                if(request('phone') == null){
+                    $address->mobile = "00000000";
+                }else{
+                    $address->mobile = request('phone');
+                }
+                if(request('city') == null){
+                    $address->city = 'toppers';
+                }else{
+                    $address->city = request('city');
+                }
                 $address->save();
                 $_SESSION['ins'] = request('ins');
                 $_SESSION['customer'] = $customer;
@@ -136,22 +189,57 @@ class OrderController extends Controller
         
         $_SESSION['ins'] = request('ins');
         $customer = new Customer();
-        $customer->name = request('name');
-        $customer->email = request('email');
-        $customer->phone = request('phone');
+        if(request('name') == null){
+            $customer->name = "Toppers Pakistan";    
+        }else{
+            $customer->name = request('name');
+        }
+        if(request('email') == null){
+            $customer->email = "toppersPakistan@$time";
+        }else{
+            $customer->email = request('email');
+        }
+        if(request('phone') == null){
+            $customer->phone = "000000";
+        }else{
+            $customer->phone = request('phone');
+        }
+
         $customer->password = bcrypt('12345678');
         $customer->save();
 
-
-        
         $address = new Address();
         $address->customer_id = $customer->id;
-        $address->description = request('description');
-        $address->house = request('house');
-        $address->street = request('street');
-        $address->area = request('area');
-        $address->mobile = request('phone');
-        $address->city = request('city');
+        if(request('description') == null){
+            $address->description = "toppers";
+        }else{
+            $address->description = request('description');
+        }
+        if(request('house') == null){
+            $address->house = 'toppers';
+        }else{
+            $address->house = request('house');
+        }
+        if(request('street') == null){
+            $address->street = 'toppers';
+        }else{
+            $address->street = request('street');
+        }
+        if(request('area') == null){
+            $address->area = 'toppers';
+        }else{
+            $address->area = request('area');
+        }
+        if(request('phone') == null){
+            $address->mobile = "00000000";
+        }else{
+            $address->mobile = request('phone');
+        }
+        if(request('city') == null){
+            $address->city = 'toppers';
+        }else{
+            $address->city = request('city');
+        }
         $address->save();
 
         return view('punch-order',compact('customer','address'));
@@ -189,6 +277,19 @@ class OrderController extends Controller
                 $_SESSION['items'][$i]->save();
             }
         }
+
+        $data = array(
+            'name' => $_SESSION['customer']->name,
+            'branch' => $order->branch->name,
+            'price' => $order->total_price,
+            'delivery' => $order->delivery,
+            'items' => $_SESSION['items'],
+            'orderId' => $order->id
+        );
+
+        Mail::to($_SESSION['customer']->email)->send(
+            new MailSender($data,'Order Placed')
+        );
 
         session_unset();
         session_destroy();

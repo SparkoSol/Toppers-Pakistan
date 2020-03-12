@@ -35,14 +35,14 @@ class AddressController extends Controller
     }
 
     public function getAddressByCustomerId($id) {
-        return Address::where('customer_id', $id)->get();
+        return Address::where('customer_id', $id)->where('active',true)->get();
     }
 
 
     public function deleteAddress($id)
     {
         return Address::where('id', $id)
-                ->delete();
+            ->update(['active'  => false]);
     }
 
 }
