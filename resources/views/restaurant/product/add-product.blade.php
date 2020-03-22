@@ -43,11 +43,11 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="category" class="col-md-4 col-form-label text-md-right">Category </label>
+                            <label for="subCategory" class="col-md-4 col-form-label text-md-right">Sub Category </label>
                             <div class="col-md-6">
-                                <select class="form-control" id="category" name="category">
-                                    @for ($i = 0; $i < count($categories); $i++)
-                                        <option value="{{$categories[$i]->id}}">{{$categories[$i]->name}}</option>
+                                <select class="form-control" id="subCategory" name="subCategory">
+                                    @for ($i = 0; $i < count($subCategories); $i++)
+                                        <option value="{{$subCategories[$i]->id}}">{{$subCategories[$i]->name}}</option>
                                     @endfor
                                 </select>
                             </div>

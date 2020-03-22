@@ -77,7 +77,7 @@
                                     @endif
                                     @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('product') }}">
-                                        {{ __('Restaurant Products') }}
+                                        {{ __('Products') }}
                                     </a>
                                     @endif
                                     @if(@Auth::user()->type == "Main Admin")
@@ -88,6 +88,11 @@
                                     @if(@Auth::user()->type == "Main Admin")
                                     <a class="dropdown-item" href="{{ url('category') }}">
                                         {{ __('Category') }}
+                                    </a>
+                                    @endif
+                                    @if(@Auth::user()->type == "Main Admin")
+                                    <a class="dropdown-item" href="{{ url('subCategory') }}">
+                                        {{ __('Sub Category') }}
                                     </a>
                                     @endif
                                     @if(@Auth::user()->type == "Main Admin")

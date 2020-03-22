@@ -107,16 +107,14 @@ class OrderController extends Controller
         $order->total_price = request('total_price');
         $order->instructions = request('instruction');
         $order->branch_id = request('branch_id');
+        $order->delivery = request('delivery');
 
         $order->save();
         return $order;
-
     }
 
     public function sendEmailApi() {
-        
-        $order = new Order();
-        $order = request('order');
+                $order = request('order');
         $customer = Customer::where('id',$order['customer_id'])->first();
         $branch = RestaurantBranch::where('id',$order['branch_id'])->first();
         $data = array(
@@ -135,7 +133,17 @@ class OrderController extends Controller
     }
 
     public function addCustomerInfo(){    
-        return view('add-customer-order');
+        session_start();
+        if(isset($_SESSION['customer'])){
+            $customer = $_SESSION['customer'];
+            $address= $_SESSION['address'];
+    
+            return view('punch-order',compact('customer','address'));
+        }else{
+            $_SESSION['items'] = array();
+            return view('add-customer-order');
+        }
+
     }
 
     public function storeCustomerInfo(){
@@ -277,19 +285,25 @@ class OrderController extends Controller
                 $_SESSION['items'][$i]->save();
             }
         }
-
-        $data = array(
-            'name' => $_SESSION['customer']->name,
-            'branch' => $order->branch->name,
-            'price' => $order->total_price,
-            'delivery' => $order->delivery,
-            'items' => $_SESSION['items'],
-            'orderId' => $order->id
-        );
-
-        Mail::to($_SESSION['customer']->email)->send(
-            new MailSender($data,'Order Placed')
-        );
+        if (strpos($_SESSION['customer']->email, 'toppersPakistan@') !== false) {
+            session_unset();
+            session_destroy();
+            return redirect('home');            
+            // dd(strpos('toppersPakistan@02:47:21pm', 'toppersPakistan@'));
+        }else{
+            $data = array(
+                'name' => $_SESSION['customer']->name,
+                'branch' => $order->branch->name,
+                'price' => $order->total_price,
+                'delivery' => $order->delivery,
+                'items' => $_SESSION['items'],
+                'orderId' => $order->id
+            );
+    
+            Mail::to($_SESSION['customer']->email)->send(
+                new MailSender($data,'Order Placed')
+            );
+        }
 
         session_unset();
         session_destroy();

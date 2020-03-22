@@ -17,7 +17,7 @@
                 <th>Sr#</th>
                 <th>Product Name</th>
                 <th>Restaurant Name</th>
-                <th>Category Name</th>
+                <th>Sub Category Name</th>
                 <th>Quantity</th>
                 <th>Unit Price</th>
                 <th>Serving</th>
@@ -28,7 +28,7 @@
                     <th>{{$i+1}}</th>
                     <th>{{$products[$i]->name}}</th>
                     <th>{{$products[$i]->restaurant->name}}</th>
-                    <th>{{$products[$i]->category->name}}</th>
+                    <th>{{$products[$i]->subCategory->name}}</th>
                     <th>{{$products[$i]->quantity . " " . $products[$i]->unit->name}}</th>
                     <th>{{"Rs. " .$products[$i]->unit_price}}</th>
                     <th>{{$products[$i]->serving. " Person"}}</th>

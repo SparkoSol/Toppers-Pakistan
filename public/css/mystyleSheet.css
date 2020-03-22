@@ -1,0 +1,13 @@
+.btn-reset {
+    color: #fff;
+    background-color: #BE311A;
+    border-color: #BE311A;
+  }
+
+  .decor-control:focus {
+    color: #495057;
+    background-color: #fff;
+    border-color: #BE311A;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(190,49,26, 0.25);
+  }

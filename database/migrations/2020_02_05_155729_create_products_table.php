@@ -18,8 +18,8 @@ class CreateProductsTable extends Migration
             $table->string('name');
             $table->integer('restaurant_id')->unsigned();
             $table->foreign('restaurant_id')->references('id')->on('restaurants')->onDelete('cascade');
-            $table->integer('category_id')->unsigned();
-            $table->foreign('category_id')->references('id')->on('categories')->onDelete('cascade');
+            $table->integer('subCategory_id')->unsigned();
+            $table->foreign('subCategory_id')->references('id')->on('sub_categories')->onDelete('cascade');
             $table->integer('unit_id')->unsigned();
             $table->foreign('unit_id')->references('id')->on('units')->onDelete('cascade');
             $table->integer('quantity');
