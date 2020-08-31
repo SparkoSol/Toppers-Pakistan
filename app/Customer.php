@@ -3,6 +3,7 @@
 namespace App;
 
 use App\Address;
+use App\ForgetPassword;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -50,6 +51,11 @@ class Customer extends Authenticatable
     
     public function addresses(){
         return $this->hasMany(Address::class);
+    }
+
+
+    public function forgetPasswords(){
+        return $this->hasMany(ForgetPassword::class);
     }
 
 

@@ -91,4 +91,11 @@ class CategoryController extends Controller
         $products = $category->products;
         return $products;
     }
+
+    public function apiSubCategories($id)
+    {
+        $category = Category::where('id',$id)->first();
+        $subCategories = $category->subCategories;
+        return $subCategories;
+    }
 }

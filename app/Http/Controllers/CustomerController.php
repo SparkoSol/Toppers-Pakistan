@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Customer;
+use App\Order;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -52,7 +53,9 @@ class CustomerController extends Controller
 	}
 
 	public function getOrders($id){
-		return Customer::where('id',$id)->first()->orders;
+		$customer = Customer::where('id',$id)->first();
+		$orders = Order::where('customer_id',$customer->id)->orderBy('id','desc')->get();
+		return $orders;
 	}
 
 	public function changePassword($id){
@@ -89,6 +92,7 @@ class CustomerController extends Controller
         $customer->name =     request('name');
         $customer->phone =    request('phone');
 		$customer->password = bcrypt(request('password'));
+		$customer->other = request('other');
 		$customer->save();
 
 		$this->login();

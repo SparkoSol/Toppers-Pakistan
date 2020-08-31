@@ -21,6 +21,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 //GET ALL
 
 Route::get('/category', 'CategoryController@apiIndex');
+Route::get('/subCategory', 'SubCategoryController@apiIndex');
 Route::get('/customer', 'CustomerController@apiIndex');
 Route::get('/order', 'OrderController@apiIndex');
 Route::get('/order-item', 'OrderItemController@apiIndex');
@@ -42,7 +43,8 @@ Route::get('/unit/{id}','UnitController@apiIndexById');
 
 
 //Get Products by category id
-Route::get('/category/{id}/products','CategoryController@apiProducts');
+Route::get('/subCategory/{id}/products','SubCategoryController@apiProducts');
+Route::get('/category/{id}/subCategories','CategoryController@apiSubCategories');
 
 
 //Customer Register and Login
@@ -77,5 +79,9 @@ Route::get('/carosel','CaroselController@indexApi');
 Route::post('/orderConfirmation','OrderController@sendEmailApi');
 
 
+
+//Forget Password
+
+Route::post('/forgetPassword','ForgetPasswordController@index');
 
 

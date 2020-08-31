@@ -16,6 +16,11 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/privacy-policy', function () {
+    return view('privacy_policy');
+});
+
+
 Route::get('/register-admin','UserController@registerAdmin');
 Route::post('/register','UserController@register');
 
@@ -24,7 +29,7 @@ Auth::routes(['register'=>false]);
 
 // Route::get('/home', 'HomeController@index')->name('home');
 
-//Restaurant Routes
+// Restaurant Routes
 // Route::get('/restaurant', 'RestaurantController@index');
 // Route::get('/add-restaurant', 'RestaurantController@addRestaurant');
 // Route::post('/store-restaurant','RestaurantController@storeRestaurant');
@@ -51,7 +56,11 @@ Route::post('/update-product/{id}','ProductController@updateProduct');
 Route::get('/delete-product/{id}','ProductController@deleteProduct');
 Route::get('/add-product-order','ProductController@addProductOrder');
 Route::post('/add-product-order-list','ProductController@addProductOrderList');
+Route::post('/filter-products','ProductController@filterProduct');
+
+
 Route::post('/store-order-admin','OrderController@storeOrderAdmin');
+
 
 
 
@@ -146,3 +155,19 @@ Route::post('/store-notification','FirebaseController@store');
 //Shop
 
 // Route::get('/shop','ShopController@index');
+
+
+//Sub Category
+
+Route::get('/subCategory','SubCategoryController@index');
+Route::get('/add-sub-category', 'SubCategoryController@addSubCategory');
+Route::post('/store-sub-category','SubCategoryController@storeSubCategory');
+Route::get('/edit-sub-category/{id}','SubCategoryController@editSubCategory');
+Route::post('/update-sub-category/{id}','SubCategoryController@updateSubCategory');
+Route::get('/delete-sub-category/{id}','SubCategoryController@deleteSubCategory');
+
+
+//Forget Password
+
+Route::get('changePass','ForgetPasswordController@changePass');
+Route::post('reset-password','ForgetPasswordController@resetPassword');

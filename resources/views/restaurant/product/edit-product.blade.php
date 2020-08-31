@@ -46,14 +46,14 @@
                         </div>
 
                         <div class="form-group row">
-                            <label for="category" class="col-md-4 col-form-label text-md-right">Category </label>
+                            <label for="category" class="col-md-4 col-form-label text-md-right">Sub Category </label>
                             <div class="col-md-6">
-                                <select class="form-control" id="category" name="category">
-                                    @for ($i = 0; $i < count($categories); $i++)
-                                        @if($categories[$i]->id == $product->category_id)
-                                        <option value="{{$categories[$i]->id}}" selected="selected">{{$categories[$i]->name}}</option>
+                                <select class="form-control" id="subCategory" name="subCategory">
+                                    @for ($i = 0; $i < count($subCategories); $i++)
+                                        @if($subCategories[$i]->id == $product->subCategory_id)
+                                        <option value="{{$subCategories[$i]->id}}" selected="selected">{{$subCategories[$i]->name}}</option>
                                         @else
-                                        <option value="{{$categories[$i]->id}}">{{$categories[$i]->name}}</option>
+                                        <option value="{{$subCategories[$i]->id}}">{{$subCategories[$i]->name}}</option>
                                         @endif
                                     @endfor
                                 </select>
@@ -100,19 +100,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
-                            <label for="serving" class="col-md-4 col-form-label text-md-right">{{ __('Product Serving') }}</label>
 
-                            <div class="col-md-6">
-                                <input id="serving" value="{{$product->serving}}" type="text" class="form-control @error('serving') is-invalid @enderror" name="serving" value="{{ old('serving') }}" required autocomplete="serving" autofocus>
-
-                                @error('serving')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
                         <div class="form-group row">
                             <label for="image" class="col-md-4 col-form-label text-md-right">Insert Image</label>
                             <div class="col-md-6">

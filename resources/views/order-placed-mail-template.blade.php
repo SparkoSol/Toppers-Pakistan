@@ -23,7 +23,7 @@ else{
     <tr>
         <th>{{$i+1}}</th>
         <th>{{$data['items'][$i]->product->name}}</th>
-        <th>{{$data['items'][$i]->quantity}}</th>
+        <th>{{$data['items'][$i]->quantity}}</th>        
     </tr>
     @endfor
 </table>

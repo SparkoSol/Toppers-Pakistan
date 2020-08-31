@@ -9,8 +9,8 @@ class Product extends Model
     public function restaurant(){
         return $this->belongsTo(Restaurant::class);
     }
-    public function category(){
-        return $this->belongsTo(Category::class);
+    public function subCategory(){
+        return $this->belongsTo(SubCategory::class,'subCategory_id','id');
     }
     public function unit(){
         return $this->HasOne(Unit::class,'id','unit_id');

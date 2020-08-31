@@ -78,7 +78,6 @@
                     @endauth
                 </div>
             @endif
-
             <div class="content">
                 <div class="title m-b-md">
                     <div class="d-flex justify-content-center">

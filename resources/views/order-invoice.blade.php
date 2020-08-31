@@ -37,7 +37,11 @@
         <div class="page-header row" id="info">
             <div class="col-md-6">
                 <h1>Order # {{$order->id}}</h1>
+                @if($order->delivery)
                 <h2>Delivery</h2>
+                @else
+                <h2>Dine In</h2>
+                @endif
                 <h3>Order Date: {{$order->created_at}}</h3>
                 <h3>Delivery Date: {{$order->created_at}}</h3>
             </div>
@@ -58,7 +62,7 @@
                 @for ($i = 0; $i < count($orderItems); $i++)
                     <tr>
                         <td colspan="2">{{$orderItems[$i]->product->name}}</td>
-                        <td>{{$orderItems[$i]->quantity}}</td>
+                        <td>{{$orderItems[$i]->quantity}} {{$orderItems[$i]->product->unit->name}}</td>
                         <td>Rs. {{$orderItems[$i]->product->unit_price * $orderItems[$i]->quantity}}</td>
                     </tr>
                 @endfor

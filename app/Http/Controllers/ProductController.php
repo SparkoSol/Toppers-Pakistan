@@ -6,6 +6,7 @@ use App\Restaurant;
 use App\Product;
 use App\Unit;
 use App\Category;
+use App\SubCategory;
 use App\OrderItem;
 use Illuminate\Http\Request;
 
@@ -33,20 +34,20 @@ class ProductController extends Controller
     {
         $restaurants = Restaurant::all();
         $units = Unit::all();
-        $categories = Category::all();
-        return view('restaurant.product.add-product',compact('restaurants','units','categories'));
+        $subCategories = SubCategory::all();
+        return view('restaurant.product.add-product',compact('restaurants','units','subCategories'));
     }
 
     public function addProductOrder()
     {
         $products = Product::all();
-        return view('restaurant.product.add-product-order',compact('products'));
+        $categories = Category::all();
+        return view('restaurant.product.add-product-order',compact('products','categories'));
     }
 
     public function addProductOrderList()
     {
         session_start();
-        $_SESSION['items'] = array();
         if( request('check_list') != null){
             for ($i=0; $i < count(request('check_list')) ; $i++) { 
                 $orderItem  =  new OrderItem();
@@ -56,7 +57,7 @@ class ProductController extends Controller
             }
         }
 
-        return redirect('/punch-order');
+        return redirect('punch-order');
 
     }
     
@@ -64,11 +65,10 @@ class ProductController extends Controller
         $product = new Product();
         $product->name = request('name');
         $product->restaurant_id = request('restaurant');
-        $product->category_id = request('category');
+        $product->subCategory_id = request('subCategory');
         $product->unit_id = request('unit');
         $product->unit_price =  request('price');
         $product->quantity = request('quantity'); 
-        $product->serving  = request('serving');
         $imageName = time().'.'.request()->image->getClientOriginalExtension();
         request()->image->move(public_path('images/products'), $imageName);
 
@@ -82,19 +82,18 @@ class ProductController extends Controller
         $product = Product::where('id', $id)->first();
         $restaurants = Restaurant::all();
         $units = Unit::all();
-        $categories = Category::all();
-        return view('restaurant.product.edit-product',compact('product','restaurants','units','categories'));
+        $subCategories = SubCategory::all();
+        return view('restaurant.product.edit-product',compact('product','restaurants','units','subCategories'));
     }
     
     public function updateProduct($id)
     {
         $name = request('name');
         $restaurant_id = request('restaurant');
-        $category_id = request('category');
+        $subCategory_id = request('subCategory');
         $unit_id = request('unit');
         $unit_price =  request('price');
         $quantity = request('quantity'); 
-        $serving  = request('serving');
 
         if(request('image') != null){
             $imageName = time().'.'.request()->image->getClientOriginalExtension();
@@ -103,11 +102,10 @@ class ProductController extends Controller
             ->update([
                     'name'  => $name,
                     'restaurant_id' => $restaurant_id,
-                    'category_id'  => $category_id,
+                    'subCategory_id'  => $subCategory_id,
                     'unit_id'  => $unit_id,
                     'unit_price'  => $unit_price,
                     'quantity'  => $quantity,
-                    'serving'=> $serving,
                     'image'=>$imageName
                 ]);
         }
@@ -116,11 +114,10 @@ class ProductController extends Controller
             ->update([
                     'name'  => $name,
                     'restaurant_id' => $restaurant_id,
-                    'category_id'  => $category_id,
+                    'subCategory_id'  => $subCategory_id,
                     'unit_id'  => $unit_id,
                     'unit_price'  => $unit_price,
                     'quantity'  => $quantity,
-                    'serving'=> $serving
                 ]);
         }        
         return redirect('/product');
@@ -144,5 +141,15 @@ class ProductController extends Controller
     public function apiIndexById($id)
     {
         return Product::where('id', $id)->first();
+    }
+
+
+    public function filterProduct(){
+        $category = Category::where('id',request('category'))->first();
+        $subCategory = SubCategory::where('id',request('subCategory'))->first();
+        $products = Product::where('subCategory_id',request('subCategory'))->get();
+        $categories = Category::all();
+        return view('restaurant.product.add-product-order',compact('products','categories'));
+
     }
 }
