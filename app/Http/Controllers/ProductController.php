@@ -8,6 +8,8 @@ use App\Unit;
 use App\Category;
 use App\SubCategory;
 use App\OrderItem;
+use App\Customer;
+use App\Order;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
@@ -49,7 +51,7 @@ class ProductController extends Controller
     {
         session_start();
         if( request('check_list') != null){
-            for ($i=0; $i < count(request('check_list')) ; $i++) { 
+            for ($i=0; $i < count(request('check_list')) ; $i++) {
                 $orderItem  =  new OrderItem();
                 $orderItem->product_id =  request('check_list')[$i];
                 $orderItem->quantity =  request('quantity')[request('check_list')[$i]];
@@ -60,7 +62,7 @@ class ProductController extends Controller
         return redirect('punch-order');
 
     }
-    
+
     public function storeProduct(Request $request) {
         $product = new Product();
         $product->name = request('name');
@@ -68,7 +70,7 @@ class ProductController extends Controller
         $product->subCategory_id = request('subCategory');
         $product->unit_id = request('unit');
         $product->unit_price =  request('price');
-        $product->quantity = request('quantity'); 
+        $product->quantity = request('quantity');
         $imageName = time().'.'.request()->image->getClientOriginalExtension();
         request()->image->move(public_path('images/products'), $imageName);
 
@@ -85,7 +87,7 @@ class ProductController extends Controller
         $subCategories = SubCategory::all();
         return view('restaurant.product.edit-product',compact('product','restaurants','units','subCategories'));
     }
-    
+
     public function updateProduct($id)
     {
         $name = request('name');
@@ -93,7 +95,7 @@ class ProductController extends Controller
         $subCategory_id = request('subCategory');
         $unit_id = request('unit');
         $unit_price =  request('price');
-        $quantity = request('quantity'); 
+        $quantity = request('quantity');
 
         if(request('image') != null){
             $imageName = time().'.'.request()->image->getClientOriginalExtension();
@@ -119,9 +121,9 @@ class ProductController extends Controller
                     'unit_price'  => $unit_price,
                     'quantity'  => $quantity,
                 ]);
-        }        
+        }
         return redirect('/product');
-        
+
     }
 
 
@@ -129,7 +131,7 @@ class ProductController extends Controller
     {
         Product::where('id', $id)
                 ->delete();
-        
+
         return redirect('/product');
     }
 
@@ -151,5 +153,23 @@ class ProductController extends Controller
         $categories = Category::all();
         return view('restaurant.product.add-product-order',compact('products','categories'));
 
+    }
+
+    public function getProductOrders($id) {
+        $values = array();
+        $orderItems = OrderItem::where('product_id',$id)->get();
+        for($i = 0; $i < count($orderItems); $i++) {
+            $order = Order::where('id', $orderItems[$i]->order_id)->first();
+            $customer = Customer::where('id',$order->customer_id)->first();
+            $object = (object) [
+                'orderNo' => $order->id,
+                'customer' => $customer->name,
+                'quantity' => $orderItems[$i]->quantity,
+                'total' => $order->total_price,
+                'origin' => $order->origin
+            ];
+            $values[] = $object;
+        }
+        return $values;
     }
 }

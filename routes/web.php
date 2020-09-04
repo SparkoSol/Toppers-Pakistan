@@ -171,3 +171,6 @@ Route::get('/delete-sub-category/{id}','SubCategoryController@deleteSubCategory'
 
 Route::get('changePass','ForgetPasswordController@changePass');
 Route::post('reset-password','ForgetPasswordController@resetPassword');
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');

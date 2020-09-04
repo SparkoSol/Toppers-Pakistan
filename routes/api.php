@@ -18,6 +18,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
+
 //GET ALL
 
 Route::get('/category', 'CategoryController@apiIndex');
@@ -26,6 +27,7 @@ Route::get('/customer', 'CustomerController@apiIndex');
 Route::get('/order', 'OrderController@apiIndex');
 Route::get('/order-item', 'OrderItemController@apiIndex');
 Route::get('/product', 'ProductController@apiIndex');
+//Route::get('/product', array('middleware' => 'cors', 'uses' => 'ProductController@apiIndex'));
 Route::get('/restaurant', 'RestaurantController@apiIndex');
 Route::get('/restaurant-branch', 'RestaurantBranchController@apiIndex');
 Route::get('/unit', 'UnitController@apiIndex');
@@ -83,5 +85,9 @@ Route::post('/orderConfirmation','OrderController@sendEmailApi');
 //Forget Password
 
 Route::post('/forgetPassword','ForgetPasswordController@index');
+
+//New Routes For Admin Panel
+
+Route::get('product/{id}/orders', 'ProductController@getProductOrders');
 
 

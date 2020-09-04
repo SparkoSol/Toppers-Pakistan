@@ -78,6 +78,7 @@
                     @endauth
                 </div>
             @endif
+            <example-component></example-component>
             <div class="content">
                 <div class="title m-b-md">
                     <div class="d-flex justify-content-center">
