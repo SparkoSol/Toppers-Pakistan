@@ -54,7 +54,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 //Carousel
-    Route::get('/carosel', 'CaroselController@indexApi');
+    Route::get('/carousel', 'CaroselController@indexApi');
     Route::post('/orderConfirmation', 'OrderController@sendEmailApi');
 
 //Forget Password
