@@ -10,6 +10,7 @@
     "watch-poll": "npm run watch -- --watch-poll"
   },
   "dependencies": {
+    "prettier": "^2.1.2",
     "vuetify": "^2.3.10"
   },
   "devDependencies": {

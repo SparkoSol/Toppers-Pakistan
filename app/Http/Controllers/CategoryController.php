@@ -39,7 +39,8 @@ class CategoryController extends Controller
 
         $category->image = $imageName;
         $category->save();
-        return redirect('/category');
+        return $category;
+        //        return redirect('/category');
     }
 
     public function editCategory($id)
@@ -54,25 +55,32 @@ class CategoryController extends Controller
         if(request('image') != null){
             $imageName = time().'.'.request()->image->getClientOriginalExtension();
             request()->image->move(public_path('images/category'), $imageName);
-            Category::where('id', $id)
+            return Category::where('id', $id)
             ->update(['name'  => $name,
                      'image'  => $imageName
                      ]);
         }
         else{
-        Category::where('id', $id)
+        return Category::where('id', $id)
                 ->update(['name'  => $name]);
         }
-        
-        return redirect('/category');
+//        return redirect('/category');
     }
 
     public function deleteCategory($id)
     {
-        Category::where('id', $id)
+        try {
+            error_log('here');
+            Category::where('id', $id)
                 ->delete();
-        
-        return redirect('/category');
+        } catch(\Throwable $e)  {
+            return response()->json([
+                'error' => 'Please delete all Sub Categories relevant to this category inorder to remove this category.',
+            ],200);
+            error_log('we here');
+            error_log($e);
+        }
+
     }
 
     public function apiIndex()

@@ -16,12 +16,13 @@ class CreateAddressesTable extends Migration
         Schema::create('addresses', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('customer_id')->unsigned();
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
+            $table->foreign('customer_id')->references('id')->on('customers');
             $table->string('description');
             $table->string('house');
             $table->string('street');
             $table->string('area');
             $table->string('city');
+            $table->boolean('active')->default(true);
             $table->string('mobile');
             $table->timestamps();
         });

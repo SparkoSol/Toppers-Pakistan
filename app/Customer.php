@@ -4,6 +4,7 @@ namespace App;
 
 use App\Address;
 use App\ForgetPassword;
+use App\CustomerTransaction;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -16,6 +17,9 @@ class Customer extends Authenticatable
 
     public function orders(){
         return $this->hasMany(Order::class);
+    }
+    public function customerTransaction(){
+        return $this->belongsTo(CustomerTransaction::class,'product_id','id');
     }
 
     public function findForPassport($username) {
@@ -48,7 +52,7 @@ class Customer extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
-    
+
     public function addresses(){
         return $this->hasMany(Address::class);
     }

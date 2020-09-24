@@ -33,17 +33,17 @@ class SubCategoryController extends Controller
     }
 
     public function storeSubCategory(Request $request) {
+
         $subCategory = new SubCategory();
         $subCategory->name = request('name');
-        $subCategory->category_id = request('category');
-
+        $subCategory->category_id = request('category_id');
 
         $imageName = time().'.'.request()->image->getClientOriginalExtension();
         request()->image->move(public_path('images/subCategory'), $imageName);
-
         $subCategory->image = $imageName;
+        error_log($subCategory);
         $subCategory->save();
-        return redirect('/subCategory');
+        return $subCategory;
     }
 
     public function editSubCategory($id)
@@ -56,31 +56,37 @@ class SubCategoryController extends Controller
     public function updateSubCategory($id)
     {
         $name = request('name');
-        $category = request('category');
+        $category = request('category_id');
+        error_log($category);
         if(request('image') != null){
             $imageName = time().'.'.request()->image->getClientOriginalExtension();
             request()->image->move(public_path('images/subCategory'), $imageName);
-            SubCategory::where('id', $id)
+            return SubCategory::where('id', $id)
             ->update(['name'  => $name,
                         'category_id' => $category,
                      'image'  => $imageName
                      ]);
         }
         else{
-            SubCategory::where('id', $id)
+            return SubCategory::where('id', $id)
                 ->update(['name'  => $name,'category_id' => $category]
             );
         }
-        
-        return redirect('/subCategory');
+
+//        return redirect('/subCategory');
     }
 
     public function deleteSubCategory($id)
     {
-        SubCategory::where('id', $id)
+        try {
+            error_log('here');
+            SubCategory::where('id', $id)
                 ->delete();
-        
-        return redirect('/subCategory');
+        } catch(\Throwable $e)  {
+            return response()->json([
+                'error' => 'Please delete all products relevant to this sub category inorder to remove this sub category.',
+            ],200);
+        }
     }
 
     public function apiIndex()

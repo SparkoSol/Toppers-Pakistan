@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Unit;
+use App\Product;
 use Illuminate\Http\Request;
 
 class UnitController extends Controller
@@ -34,7 +35,7 @@ class UnitController extends Controller
         $unit->name = request('name');
 
         $unit->save();
-        return redirect('/unit');
+        return $unit;
     }
 
     public function editUnit($id)
@@ -46,18 +47,20 @@ class UnitController extends Controller
     public function updateUnit($id)
     {
         $name = request('name');
-        unit::where('id', $id)
+        return unit::where('id', $id)
                 ->update(['name'  => $name]);
-        
-        return redirect('/unit');
     }
 
     public function deleteUnit($id)
     {
-        unit::where('id', $id)
+        try {
+            unit::where('id', $id)
                 ->delete();
-        
-        return redirect('/unit');
+        } catch(\Throwable $e)  {
+            return response()->json([
+                'error' => 'Please delete all Products relevant to this unit inorder to remove this unit.',
+            ],200);
+        }
     }
 
     public function apiIndex()
@@ -68,5 +71,13 @@ class UnitController extends Controller
     public function apiIndexById($id)
     {
         return [Unit::where('id', $id)->first()];
+    }
+
+    public function getById($id) {
+        return Unit::where('id', $id)->first();
+    }
+
+    public function getProducts($id) {
+        return Product::where('unit_id', $id)->get();
     }
 }

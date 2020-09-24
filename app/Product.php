@@ -12,6 +12,9 @@ class Product extends Model
     public function subCategory(){
         return $this->belongsTo(SubCategory::class,'subCategory_id','id');
     }
+    public function productHistory(){
+        return $this->belongsTo(ProductHistory::class,'product_id','id');
+    }
     public function unit(){
         return $this->HasOne(Unit::class,'id','unit_id');
     }

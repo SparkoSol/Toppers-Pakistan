@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Restaurant;
 use App\RestaurantBranch;
+use App\User;
 use Illuminate\Http\Request;
 
 class RestaurantBranchController extends Controller
@@ -18,17 +19,16 @@ class RestaurantBranchController extends Controller
     {
         //
     }
-
-    public function index()
+    public function apiIndex()
     {
-        $restaurants = Restaurant::all();
-        $branches =RestaurantBranch::all();
-        return view('branch',compact('restaurants','branches'));
+        return RestaurantBranch::all();
     }
-
-    public function addBranch()
+    public function managers($id) {
+        return User::where('branch_id',$id)->get();
+    }
+    public function apiIndexById($id)
     {
-        return view('restaurant.branch.add-branch')->with('restaurants', Restaurant::all());
+        return RestaurantBranch::where('id', $id)->first();
     }
 
     public function storeBranch() {
@@ -36,37 +36,30 @@ class RestaurantBranchController extends Controller
         $branch->name = request('name');
         $branch->email = request('email');
         $branch->address = request('address');
-        $branch->phone = request('phone');      
-        $branch->restaurant_id = request('restaurant');    
-        
+        $branch->phone = request('phone');
+        $branch->restaurant_id = request('restaurant');
         $imageName = time().'.'.request()->image->getClientOriginalExtension();
         request()->image->move(public_path('images/branch'), $imageName);
         $branch->image = $imageName;
-
-        
         $branch->save();
-        return redirect('/branch');
+        return $branch;
     }
 
-    public function editBranch($id)
-    {
-        $branch = RestaurantBranch::where('id', $id)->first();
-        $restaurants = Restaurant::all();
-        return view('restaurant.branch.edit-branch',compact('branch','restaurants'));
-    }
-    
     public function updateBranch($id)
     {
         $name = request('name');
         $email = request('email');
         $address = request('address');
-        $phone = request('phone');      
-        $restaurant_id = request('restaurant');   
-
+        $phone = request('phone');
+        $restaurant_id = request('restaurant');
         if(request('image') != null){
+            $branch = RestaurantBranch::where('id',$id)->first();
+            if (file_exists(public_path('images/branch/').$branch->image)) {
+                unlink(public_path('images/branch/').$branch->image);
+            }
             $imageName = time().'.'.request()->image->getClientOriginalExtension();
             request()->image->move(public_path('images/branch'), $imageName);
-            RestaurantBranch::where('id', $id)
+            $branch = RestaurantBranch::where('id', $id)
                 ->update(['name'  => $name,
                          'restaurant_id' => $restaurant_id,
                          'email'  => $email,
@@ -76,7 +69,7 @@ class RestaurantBranchController extends Controller
                          ]);
         }
         else{
-            RestaurantBranch::where('id', $id)
+            $branch = RestaurantBranch::where('id', $id)
             ->update(['name'  => $name,
                      'restaurant_id' => $restaurant_id,
                      'email'  => $email,
@@ -84,38 +77,18 @@ class RestaurantBranchController extends Controller
                      'phone'  => $phone
                      ]);
         }
-
-
-
-
-
-        RestaurantBranch::where('id', $id)
-                ->update(['name'  => $name,
-                         'restaurant_id' => $restaurant_id,
-                         'email'  => $email,
-                         'address'=> $address,
-                         'phone'  => $phone
-                         ]);
-        
-        return redirect('/branch');
-        
+        return $branch;
     }
     public function deleteBranch($id)
     {
-        RestaurantBranch::where('id', $id)
+        try {
+            error_log('here');
+            RestaurantBranch::where('id', $id)
                 ->delete();
-        
-        return redirect('/branch');
+        } catch(\Throwable $e)  {
+            return response()->json([
+                'error' => 'Cannot delete Branch.',
+            ],200);
+        }
     }
-
-    public function apiIndex()
-    {
-        return RestaurantBranch::all();
-    }
-
-    public function apiIndexById($id)
-    {
-        return RestaurantBranch::where('id', $id)->first();
-    }
-
 }

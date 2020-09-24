@@ -25,14 +25,28 @@ class CustomerController extends Controller
 
     public function apiIndex()
     {
-        return Customer::all();
+        error_log('we here');
+        try {
+            return Customer::all();
+        } catch (Exception $e) {
+            error_log($e);
+        }
+    }
+
+    public function customers() {
+        error_log('we here');
+        try {
+            return Customer::all();
+        } catch (Exception $e) {
+            error_log($e);
+        }
     }
 
     public function apiIndexById($id)
     {
         return Customer::where('id', $id)->first();
 	}
-	
+
 
 	public function apiCheckUserExists(){
 		$allCustomers = Customer::all();
@@ -53,8 +67,7 @@ class CustomerController extends Controller
 	}
 
 	public function getOrders($id){
-		$customer = Customer::where('id',$id)->first();
-		$orders = Order::where('customer_id',$customer->id)->orderBy('id','desc')->get();
+		$orders = Order::where('customer_id',$id)->orderBy('id','desc')->get();
 		return $orders;
 	}
 
@@ -71,10 +84,7 @@ class CustomerController extends Controller
 	}
 
     public function register(){
-
 		$allCustomers = Customer::all();
-
-
 		foreach ($allCustomers as $customerOne) {
 			if($customerOne->email == request('email')){
 				return "error";
@@ -86,7 +96,6 @@ class CustomerController extends Controller
             'password'=>'required',
             'phone'=>'required'
 		]);
-
 		$customer = new Customer();
 		$customer->email =    request('email');
         $customer->name =     request('name');
@@ -94,31 +103,56 @@ class CustomerController extends Controller
 		$customer->password = bcrypt(request('password'));
 		$customer->other = request('other');
 		$customer->save();
-
 		$this->login();
 	}
 
 	public function login(){
-		
 		request()->validate([
 			'email'=>'required',
 			'password'=>'required'
 		]);
-
-
 		$customer= Customer::where('email',request('email'))->first();
-
 		if(!$customer){
 			return "error";
 		}
-
 		if(Hash::check(request('password'),$customer->password)){
 			echo($customer);
 		}
 		else{
 			return "error";
 		}
-
 	}
 
-}
+	public function store() {
+        request()->validate([
+            'name' => ['required', 'string'],
+        ]);
+    	$customer = new Customer();
+    	$customer->email =    request('email');
+        $customer->name =     request('name');
+        $customer->phone =    request('phone');
+    	$customer->password = bcrypt(request('password'));
+    	$customer->save();
+    	return $customer;
+	}
+	public function update($id) {
+        $customer = Customer::where('id',$id)->update([
+            'name'  => request('name'),
+            'email' => request('email'),
+            'phone' => request('phone')
+        ]);
+
+        return $customer;
+	}
+	public function delete($id) {
+        try {
+            error_log('here');
+            Customer::where('id', $id)
+                    ->delete();
+        } catch(\Throwable $e)  {
+            return response()->json([
+                'error' => 'Cannot delete Customer.',
+            ],200);
+        }
+    }
+ }
