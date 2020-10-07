@@ -70,18 +70,30 @@ class ProductHistoryController extends Controller
                 $value = $value + ($item->quantity * $item->value);
             }
         }
+        $purchase_price = 0;
+        if ($action == 2) {
+            $purchase_price = request('atPrice');
+        } else {
+            $product = Product::where('id', request('product_id'))->first();
+            $purchase_price = $product->purchase_price;
+        }
         Product::where('id', request('product_id'))->update([
             'stock' => $quantity,
-            'stock_value' => $value
+            'stock_value' => $value,
+            'purchase_price' => $purchase_price
         ]);
         return Product::where('id',request('product_id'))->first();
     }
     public function deleteProductHistory($id) {
+        $productHistory = ProductHistory::where('id', $id)->first();
+        $product = Product::where('id', $productHistory->product_id)->first();
         ProductHistory::where('id',$id)->delete();
-        $productHistories = ProductHistory::where('product_id', request('product_id'))->get();
+
+        $productHistories = ProductHistory::where('product_id', $product->id)->get();
         $quantity = 0;
         $value = 0;
         foreach ($productHistories as $item) {
+            error_log('count history');
             if ($item->action_type === 1) {
                 $quantity = $quantity - $item->quantity;
                 $value = $value - ($item->quantity * $item->value);
@@ -90,9 +102,9 @@ class ProductHistoryController extends Controller
                 $value = $value + ($item->quantity * $item->value);
             }
         }
-        Product::where('id', request('product_id'))->update([
+        Product::where('id', $product->id)->update([
             'stock' => $quantity,
-            'stock_value' => $value
+            'stock_value' => $value,
         ]);
         return Product::where('id',request('product_id'))->first();
     }

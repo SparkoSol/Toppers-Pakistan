@@ -54,7 +54,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 //Carousel
-    Route::get('/carousel', 'CaroselController@indexApi');
+    Route::get('/carosel', 'CaroselController@indexApi');
     Route::post('/orderConfirmation', 'OrderController@sendEmailApi');
 
 //Forget Password
@@ -90,7 +90,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('productHistory/store', 'ProductHistoryController@storeProductHistory');
     Route::get('productHistory/product/{id}', 'ProductHistoryController@apiIndexById');
     Route::post('productHistory/update/{id}', 'ProductHistoryController@updateProductHistory');
-    Route::delete('productHistory/{id}','ProductHistoryController@deleteProductHistory');
+    Route::delete('productHistory/delete/{id}','ProductHistoryController@deleteProductHistory');
 
 //product
     Route::get('product/filter/{id}', 'ProductController@filterByBranch');
@@ -131,3 +131,52 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('supplier/update/{id}', 'SupplierController@update');
     Route::delete('supplier/delete/{id}', 'SupplierController@delete');
 
+// Sale Order Routes
+    Route::get('/saleOrder','SaleOrderController@getSale');
+    Route::get('/saleOrder/summary','SaleOrderController@getSummary');
+    Route::get('/saleOrder/filterMonth','SaleOrderController@filterMonth');
+    Route::get('/saleOrder/getInvoice','SaleOrderController@getInvoiceNumber');
+    Route::post('/saleOrder/filter','SaleOrderController@customFilter');
+    Route::post('/saleOrder/store','SaleOrderController@store');
+    Route::get('/saleOrder/filterYear','SaleOrderController@filterYear');
+    Route::get('/saleOrder/filter/{id}','SaleOrderController@filter');
+    Route::get('/saleOrder/{id}','SaleOrderController@getSaleById');
+    Route::post('/saleOrder/update/{id}','SaleOrderController@update');
+    Route::get('/saleOrder/customer/{id}','SaleOrderController@getSaleByCustomer');
+    Route::delete('/saleOrder/delete/{id}', 'SaleOrderController@delete');
+
+
+// Sale Order Items Route
+    Route::get('/saleOrderItems/saleOrder/{id}','SaleOrderItemController@getSaleItemsBySaleId');
+
+// Payment In Routes
+
+    Route::get('/paymentIn','PaymentInController@getPaymentIn');
+    Route::get('/paymentIn/getReceipt','PaymentInController@getReceiptNumber');
+    Route::post('/paymentIn/store','PaymentInController@store');
+    Route::post('/paymentIn/filter','PaymentInController@customFilter');
+    Route::get('/paymentIn/{id}','PaymentInController@getPaymentInById');
+    Route::post('/paymentIn/update/{id}','PaymentInController@update');
+    Route::delete('/paymentIn/delete/{id}', 'PaymentInController@delete');
+
+// Sale Return Routes
+
+    Route::get('/saleReturn','SaleReturnController@getSaleReturn');
+    Route::get('/saleReturn/{id}','SaleReturnController@getSaleReturnById');
+    Route::post('/saleReturn/store', 'SaleReturnController@store');
+    Route::post('/saleReturn/update/{id}', 'SaleReturnController@update');
+    Route::get('/saleReturn/getInvoice','SaleReturnController@getInvoiceNumber');
+    Route::post('/saleReturn/filter','SaleReturnController@customFilter');
+    Route::delete('/saleReturn/delete/{id}', 'SaleReturnController@delete');
+
+// Carousel
+    Route::get('/carousel', 'CarouselController@index');
+    Route::get('/carousel/{id}', 'CarouselController@getById');
+    Route::post('/carousel/store','CarouselController@store');
+    Route::post('/carousel/update/{id}','CarouselController@update');
+    Route::delete('/carousel/delete/{id}','CarouselController@delete');
+
+// Notification
+    Route::get('notification', 'FirebaseController@get');
+    Route::post('notification/store', 'FirebaseController@store');
+    Route::delete('notification/delete/{id}', 'FirebaseController@delete');

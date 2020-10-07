@@ -18,8 +18,9 @@ class CreateCustomerTransactionsTable extends Migration
              $table->string('name')->nullable();
              $table->integer('customer_id')->unsigned();
              $table->foreign('customer_id')->references('id')->on('customers');
-             $table->integer('quantity');
+             $table->integer('quantity')->nullable();
              $table->integer('value');
+             $table->integer('balance')->nullable();
              $table->integer('action_type');
              $table->date('date');
              $table->string('status')->nullable();

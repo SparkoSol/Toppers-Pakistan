@@ -21,6 +21,7 @@ class CreateCustomersTable extends Migration
             $table->string('password')->nullable();
             $table->string('phone')->nullable();
             $table->boolean('other')->default(false);
+            $table->string('balance')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

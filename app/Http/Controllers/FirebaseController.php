@@ -27,7 +27,7 @@ class FirebaseController extends Controller
     }
 
     public function store(){
-
+        error_log('here');
         $db = new FirestoreClient([
             'projectId'=> 'toppers-pakistan'
         ]);
@@ -38,12 +38,40 @@ class FirebaseController extends Controller
         $data = [
             'title' => $title,
             'message' => $message,
-            'timestamp' => $time 
+            'timestamp' => $time
         ];
 
         $addedDocRef = $db->collection('notifications')->newDocument();
         $addedDocRef->set($data);
-        
-        return redirect('notification');    
+
+        return $data;
     }
+
+    public function get() {
+        $db = new FirestoreClient([
+            'projectId'=> 'toppers-pakistan'
+        ]);
+        $data = $db->collection('notifications')->documents();
+        $notifications = [];
+        foreach ($data as $item) {
+            $obj = new Notification();
+            $obj->id = $item->id();
+            $obj->title = $item['title'];
+            $obj->message = $item['message'];
+            array_push($notifications, $obj);
+        }
+        return $notifications;
+    }
+    public function delete($id) {
+        $db = new FirestoreClient([
+            'projectId'=> 'toppers-pakistan'
+        ]);
+        $db->collection('notifications')->document($id)->delete();
+    }
+}
+
+class Notification {
+    public $id;
+    public $title;
+    public $message;
 }

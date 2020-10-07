@@ -156,7 +156,7 @@ class ProductController extends Controller
                    ->delete();
         } catch(\Throwable $e)  {
             return response()->json([
-                'error' => 'Cannot delete product since it is part an order.',
+                'error' => 'Cannot Delete Product.',
             ],200);
         }
     }
@@ -170,7 +170,7 @@ class ProductController extends Controller
         if($id == '-1') {
             return Product::all();
         } else {
-            return Product::where('branch_id', $id)->get();
+            return Product::where('branch_id', $id)->with('unit')->get();
         }
     }
 
