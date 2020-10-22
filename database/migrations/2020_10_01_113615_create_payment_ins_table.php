@@ -18,6 +18,8 @@ class CreatePaymentInsTable extends Migration
             $table->string('receipt_id');
             $table->integer('customer_id')->unsigned();
             $table->foreign('customer_id')->references('id')->on('customers');
+            $table->integer('branch_id')->unsigned();
+            $table->foreign('branch_id')->references('id')->on('restaurant_branches');
             $table->string('receipt_date');
             $table->string('description')->nullable();
             $table->string('received');

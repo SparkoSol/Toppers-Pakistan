@@ -5,14 +5,15 @@ namespace App\Http\Controllers;
 use App\SaleReturn;
 use App\SaleOrder;
 use App\SaleOrderItem;
-use App\SaleOrderProductTransaction;
+use App\SaleOrderItemTransaction;
 use App\SaleOrderCustomerTransaction;
 use App\SaleReturnCustomerTransaction;
-use App\SaleReturnProductTransaction;
-use App\ProductHistory;
-use App\Product;
+use App\SaleReturnItemTransaction;
+use App\Item;
 use App\Customer;
 use App\CustomerTransaction;
+use App\ItemTransaction;
+use App\Variant;
 use Illuminate\Http\Request;
 
 class SaleReturnController extends Controller
@@ -51,52 +52,68 @@ class SaleReturnController extends Controller
             $saleReturn->save();
 
             // get product transaction and duplicate with sale return
-            $saleOrderProductTransactions = SaleOrderProductTransaction::where('sale_order_id', $saleOrder->id)->get();
-            foreach($saleOrderProductTransactions as $saleOrderProductTransaction) {
-                $productTransaction = ProductHistory::where('id', $saleOrderProductTransaction->transaction_id)->first();
-                $newProductTransaction = new ProductHistory();
-                $newProductTransaction->name = $productTransaction->name;
-                $newProductTransaction->product_id = $productTransaction->product_id;
-                $newProductTransaction->quantity = $productTransaction->quantity;
-                $newProductTransaction->value = $productTransaction->value;
-                $newProductTransaction->action_type = 5;
-                $newProductTransaction->date = request('invoiceDate');
+            $saleOrderItemTransactions = SaleOrderItemTransaction::where('sale_order_id', $saleOrder->id)->get();
+            foreach($saleOrderItemTransactions as $saleOrderItemTransaction) {
+                $productTransaction = ItemTransaction::where('id', $saleOrderItemTransaction->transaction_id)->first();
+                $newItemTransaction = new ItemTransaction();
+                $newItemTransaction->customer_id = $productTransaction->customer_id;
+                $newItemTransaction->item_id = $productTransaction->item_id;
+                $newItemTransaction->variant_id = $productTransaction->variant_id;
+                $newItemTransaction->quantity = $productTransaction->quantity;
+                $newItemTransaction->price = $productTransaction->price;
+                $newItemTransaction->type = 5;
+                $newItemTransaction->date = request('invoiceDate');
                 if (request('balance')) {
                     if (request('balance') != 0)
-                        $newProductTransaction->status = 'Partial';
+                        $newItemTransaction->status = 'Partial';
                     else if (request('balance') == 0)
-                        $newProductTransaction->status = 'Paid';
+                        $newItemTransaction->status = 'Paid';
                     else
-                        $newProductTransaction->status = 'Unpaid';
+                        $newItemTransaction->status = 'Unpaid';
                 } else {
-                        $newProductTransaction->status = 'Paid';
+                        $newItemTransaction->status = 'Paid';
                 }
-                $newProductTransaction->save();
-                $saleReturnProductTransaction = new SaleReturnProductTransaction();
-                $saleReturnProductTransaction->sale_return_id = $saleReturn->id;
-                $saleReturnProductTransaction->transaction_id = $newProductTransaction->id;
-                $saleReturnProductTransaction->save();
-                $productHistories = ProductHistory::where('product_id', $newProductTransaction->product_id)->get();
-                error_log($productHistories);
-                $quantity = 0;
-                $value = 0;
-                foreach ($productHistories as $item) {
-                error_log($item);
-                    if ($item->action_type === 1) {
-                        $quantity = $quantity - $item->quantity;
-                        $value = $value - ($item->quantity * $item->value);
-                    } else if ($item->action_type === 3) {
-                        $quantity = $quantity - $item->quantity;
-                        $value = $value - ($item->quantity * $item->value);
-                    } else {
-                        $quantity = $quantity + $item->quantity;
-                        $value = $value + ($item->quantity * $item->value);
+                $newItemTransaction->save();
+                $saleReturnItemTransaction = new SaleReturnItemTransaction();
+                $saleReturnItemTransaction->sale_return_id = $saleReturn->id;
+                $saleReturnItemTransaction->transaction_id = $newItemTransaction->id;
+                $saleReturnItemTransaction->save();
+                if($newItemTransaction->variant_id === null) {
+                    error_log('here');
+                    $itemTransactions = ItemTransaction::where('item_id', $newItemTransaction->item_id)->where('active',1)->get();
+                    $stock = 0;
+                    $stock_value = 0;
+                    foreach($itemTransactions as $itemTransaction) {
+                        if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+                            $stock = $stock - $itemTransaction->quantity;
+                            $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
+                        } else {
+                            $stock = $stock + $itemTransaction->quantity;
+                            $stock_value = $stock_value + ($itemTransaction->quantity * $itemTransaction->price);
+                        }
                     }
+                    Item::where('id', $newItemTransaction->item_id)->update([
+                        'stock' => $stock,
+                        'stock_value' => $stock_value
+                    ]);
+                } else {
+                    $itemTransactions = ItemTransaction::where('variant_id', $newItemTransaction->variant_id)->where('active', 1)->get();
+                    $stock = 0;
+                    $stock_value = 0;
+                    foreach($itemTransactions as $itemTransaction) {
+                        if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+                            $stock = $stock - $itemTransaction->quantity;
+                            $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
+                        } else {
+                            $stock = $stock + $itemTransaction->quantity;
+                            $stock_value = $stock_value + ($itemTransaction->quantity * $itemTransaction->price);
+                        }
+                    }
+                    Variant::where('id', $newItemTransaction->variant_id)->update([
+                        'stock' => $stock,
+                        'stock_value' => $stock_value
+                    ]);
                 }
-                Product::where('id', $newProductTransaction->product_id)->update([
-                    'stock' => $quantity,
-                    'stock_value' => $value
-                ]);
             }
             // create customer transactions
             $saleOrderCustomerTransaction = SaleOrderCustomerTransaction::where('sale_order_id', $saleOrder->id)->first();
@@ -161,9 +178,9 @@ class SaleReturnController extends Controller
             } else {
                 $status = 'Paid';
             }
-            $saleReturnProductTransactions = SaleReturnProductTransaction::where('sale_return_id', $id)->get();
-            foreach ($saleReturnProductTransactions as $saleReturnProductTransaction) {
-                ProductHistory::where('id', $saleReturnProductTransaction->transaction_id)->update([
+            $saleReturnItemTransactions = SaleReturnItemTransaction::where('sale_return_id', $id)->get();
+            foreach ($saleReturnItemTransactions as $saleReturnItemTransaction) {
+                ItemTransaction::where('id', $saleReturnItemTransaction->transaction_id)->update([
                     'status' => $status
                 ]);
             }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSaleOrderItemsTable extends Migration
+class CreateItemTransactionsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,16 +13,20 @@ class CreateSaleOrderItemsTable extends Migration
      */
     public function up()
     {
-        Schema::create('sale_order_items', function (Blueprint $table) {
+        Schema::create('item_transactions', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('sale_order_id')->unsigned();
-            $table->foreign('sale_order_id')->references('id')->on('sale_orders');
             $table->integer('item_id')->unsigned();
             $table->foreign('item_id')->references('id')->on('items');
+            $table->integer('customer_id')->unsigned()->nullable();
+            $table->foreign('customer_id')->references('id')->on('customers');
             $table->integer('variant_id')->unsigned()->nullable();
             $table->foreign('variant_id')->references('id')->on('variants');
-            $table->string('price');
-            $table->string('qty');
+            $table->date('date');
+            $table->integer('quantity');
+            $table->integer('price');
+            $table->integer('type')->nullable;
+            $table->string('status')->nullable();
+            $table->boolean('active')->default(true);
             $table->timestamps();
         });
     }
@@ -34,6 +38,6 @@ class CreateSaleOrderItemsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sale_order_items');
+        Schema::dropIfExists('item_transactions');
     }
 }

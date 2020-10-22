@@ -162,10 +162,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // Sale Return Routes
 
     Route::get('/saleReturn','SaleReturnController@getSaleReturn');
+    Route::get('/saleReturn/getInvoice','SaleReturnController@getInvoiceNumber');
     Route::get('/saleReturn/{id}','SaleReturnController@getSaleReturnById');
     Route::post('/saleReturn/store', 'SaleReturnController@store');
     Route::post('/saleReturn/update/{id}', 'SaleReturnController@update');
-    Route::get('/saleReturn/getInvoice','SaleReturnController@getInvoiceNumber');
     Route::post('/saleReturn/filter','SaleReturnController@customFilter');
     Route::delete('/saleReturn/delete/{id}', 'SaleReturnController@delete');
 
@@ -180,3 +180,36 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::get('notification', 'FirebaseController@get');
     Route::post('notification/store', 'FirebaseController@store');
     Route::delete('notification/delete/{id}', 'FirebaseController@delete');
+
+// Item
+
+    Route::get('item/filter/{id}', 'ItemController@filterByBranch');
+    Route::get('item', 'ItemController@get');
+    Route::get('item/{id}', 'ItemController@getById');
+    Route::post('/item/store', 'ItemController@store');
+    Route::post('/item/update/{id}', 'ItemController@update');
+    Route::delete('/item/delete/{id}', 'ItemController@delete');
+
+// Item Transaction
+
+    Route::get('itemTransaction/item/{id}', 'ItemTransactionController@getByItemId');
+    Route::get('itemTransaction/variant/{id}', 'ItemTransactionController@getByVariantId');
+    Route::post('itemTransaction/no-variant/store', 'ItemTransactionController@storeNoVariant');
+    Route::post('itemTransaction/variant/store', 'ItemTransactionController@storeVariant');
+    Route::post('itemTransaction/variant/update/{id}', 'ItemTransactionController@updateVariant');
+    Route::post('itemTransaction/no-variant/update/{id}', 'ItemTransactionController@updateNoVariant');
+    Route::delete('itemTransaction/delete/{id}', 'ItemTransactionController@delete');
+
+// Item Images
+
+    Route::post('itemImages/store/{id}', 'ItemImageController@store');
+    Route::post('itemImages/update/{id}', 'ItemImageController@update');
+    Route::get('itemImages/item/{id}', 'ItemImageController@getByItemId');
+
+// Option
+
+    Route::get('option/item/{id}', 'OptionController@getByItem');
+
+// Variant
+
+    Route::get('variant/item/{id}', 'VariantController@getByItem');

@@ -4,12 +4,13 @@ namespace App\Http\Controllers;
 
 use App\SaleOrder;
 use App\SaleOrderItem;
-use App\ProductHistory;
 use App\Customer;
-use App\Product;
 use App\CustomerTransaction;
-use App\SaleOrderProductTransaction;
+use App\SaleOrderItemTransaction;
 use App\SaleOrderCustomerTransaction;
+use App\Item;
+use App\ItemTransaction;
+use App\Variant;
 use Illuminate\Http\Request;
 
 class SaleOrderController extends Controller
@@ -73,6 +74,7 @@ class SaleOrderController extends Controller
         return SaleOrder::where('customer_id',$id)->where('return_status', null)->with('branch')->get();
     }
     public function store() {
+    try {
         // sale order data
         $sale = new SaleOrder();
         $sale->invoice_date = request('invoiceDate');
@@ -98,61 +100,85 @@ class SaleOrderController extends Controller
         }
         $customer = Customer::where('id', request('customer'))->first();
         foreach (request('items') as $item) {
-            $product = Product::where('id', $item['item_id'])->first();
+            $product = Item::where('id', $item['item']['product']['id'])->first();
             // sale order item data
-            $qty = $qty + $item['qty'];
+            $qty = $qty + $item['item']['qty'];
             $saleItem = new SaleOrderItem();
             $saleItem->sale_order_id = $sale->id;
-            $saleItem->product_id = $item['item_id'];
-            $saleItem->qty = $item['qty'];
+            $saleItem->item_id = $item['item']['product']['id'];
+            if ($item['item']['variant'] !== null) {
+                $saleItem->variant_id = $item['item']['variant']['id'];
+            }
+            $saleItem->qty = $item['item']['qty'];
+            $saleItem->price = $item['item']['price'];
             $saleItem->save();
 
             // product transactions
 
-            $productHistory = new ProductHistory();
+            $productTransaction = new ItemTransaction();
             if ($customer) {
-                $productHistory->name = $customer->name;
+                $productTransaction->customer_id = $customer->id;
             }
-            $productHistory->product_id = $saleItem->product_id;
-            $productHistory->quantity = $saleItem->qty;
-            $productHistory->value =  $product->purchase_price;
-            $productHistory->action_type = 3;
-            $productHistory->date = $sale->invoice_date;
+            $productTransaction->item_id = $saleItem->item_id;
+            $productTransaction->variant_id = $saleItem->variant_id;
+            $productTransaction->quantity = $saleItem->qty;
+            if($saleItem->variant_id !== null) {
+                $productTransaction->price =  $item['item']['variant']['purchase_price'];
+            } else {
+                $productTransaction->price =  $product->purchase_price;
+            }
+            $productTransaction->type = 3;
+            $productTransaction->date = $sale->invoice_date;
             if ($sale->balance_due) {
                 if($sale->balance_due == $sale->amount) {
-                    $productHistory->status = 'Unpaid';
+                    $productTransaction->status = 'Unpaid';
                 } else {
-                    $productHistory->status = 'Partial';
+                    $productTransaction->status = 'Partial';
                 }
             } else {
-                $productHistory->status = 'Paid';
+                $productTransaction->status = 'Paid';
             }
-
-            $productHistory->save();
-            $saleProductTransaction = new SaleOrderProductTransaction();
+            $productTransaction->save();
+            $saleProductTransaction = new SaleOrderItemTransaction();
             $saleProductTransaction->sale_order_id = $sale->id;
-            $saleProductTransaction->transaction_id = $productHistory->id;
+            $saleProductTransaction->transaction_id = $productTransaction->id;
             $saleProductTransaction->save();
-
-            $productHistories = ProductHistory::where('product_id', $product->id)->get();
-            $quantity = 0;
-            $value = 0;
-            foreach ($productHistories as $item) {
-                if ($item->action_type === 1) {
-                    $quantity = $quantity - $item->quantity;
-                    $value = $value - ($item->quantity * $item->value);
-                } else if ($item->action_type === 3) {
-                    $quantity = $quantity - $item->quantity;
-                    $value = $value - ($item->quantity * $item->value);
-                } else {
-                    $quantity = $quantity + $item->quantity;
-                    $value = $value + ($item->quantity * $item->value);
+            if($saleItem->variant_id === null) {
+                error_log('here');
+                $itemTransactions = ItemTransaction::where('item_id', $item['item']['product']['id'])->where('active',1)->get();
+                $stock = 0;
+                $stock_value = 0;
+                foreach($itemTransactions as $itemTransaction) {
+                    if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+                        $stock = $stock - $itemTransaction->quantity;
+                        $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
+                    } else {
+                        $stock = $stock + $itemTransaction->quantity;
+                        $stock_value = $stock_value + ($itemTransaction->quantity * $itemTransaction->price);
+                    }
                 }
+                Item::where('id', $item['item']['product']['id'])->update([
+                    'stock' => $stock,
+                    'stock_value' => $stock_value
+                ]);
+            } else {
+                $itemTransactions = ItemTransaction::where('variant_id', $item['item']['variant']['id'])->where('active', 1)->get();
+                $stock = 0;
+                $stock_value = 0;
+                foreach($itemTransactions as $itemTransaction) {
+                    if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+                        $stock = $stock - $itemTransaction->quantity;
+                        $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
+                    } else {
+                        $stock = $stock + $itemTransaction->quantity;
+                        $stock_value = $stock_value + ($itemTransaction->quantity * $itemTransaction->price);
+                    }
+                }
+                Variant::where('id', $item['item']['variant']['id'])->update([
+                    'stock' => $stock,
+                    'stock_value' => $stock_value
+                ]);
             }
-            Product::where('id', $product->id)->update([
-                'stock' => $quantity,
-                'stock_value' => $value
-            ]);
         }
         // customer transactions
         if ($customer) {
@@ -184,34 +210,53 @@ class SaleOrderController extends Controller
             $saleCustomerTransaction->save();
         }
         return $sale;
+        } catch (\Throwable $e) {
+            error_log($e);
+        }
     }
     public function update($id) {
         try {
-        // delete product histories
-        $productTransactions = SaleOrderProductTransaction::where('sale_order_id', $id)->get();
-        foreach ($productTransactions as $productTransaction) {
-            SaleOrderProductTransaction::where('id', $productTransaction->id)->delete();
-            $history = ProductHistory::where('id', $productTransaction->transaction_id)->first();
-            ProductHistory::where('id', $productTransaction->transaction_id)->delete();
-            $productHistories = ProductHistory::where('product_id', $history->product_id)->get();
-            $quantity = 0;
-            $value = 0;
-            foreach ($productHistories as $item) {
-                if ($item->action_type === 1) {
-                    $quantity = $quantity - $item->quantity;
-                    $value = $value - ($item->quantity * $item->value);
-                } else if ($item->action_type === 3) {
-                    $quantity = $quantity - $item->quantity;
-                    $value = $value - ($item->quantity * $item->value);
-                } else {
-                    $quantity = $quantity + $item->quantity;
-                    $value = $value + ($item->quantity * $item->value);
+        // delete item transactions
+        $itemTransactions = SaleOrderItemTransaction::where('sale_order_id', $id)->get();
+        foreach ($itemTransactions as $itemTransaction) {
+            SaleOrderItemTransaction::where('id', $itemTransaction->id)->delete();
+            $history = ItemTransaction::where('id', $itemTransaction->transaction_id)->first();
+            ItemTransaction::where('id', $itemTransaction->transaction_id)->delete();
+            if($history->variant_id === null) {
+                $itemTransactions = ItemTransaction::where('item_id', $history->item_id)->where('active',1)->get();
+                $stock = 0;
+                $stock_value = 0;
+                foreach($itemTransactions as $itemTransaction) {
+                    if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+                        $stock = $stock - $itemTransaction->quantity;
+                        $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
+                    } else {
+                        $stock = $stock + $itemTransaction->quantity;
+                        $stock_value = $stock_value + ($itemTransaction->quantity * $itemTransaction->price);
+                    }
                 }
+                Item::where('id', $history->item_id)->update([
+                    'stock' => $stock,
+                    'stock_value' => $stock_value
+                ]);
+            } else {
+                $itemTransactions = ItemTransaction::where('variant_id', $history->variant_id)->where('active', 1)->get();
+                $stock = 0;
+                $stock_value = 0;
+                foreach($itemTransactions as $itemTransaction) {
+                    if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+                        $stock = $stock - $itemTransaction->quantity;
+                        $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
+                    } else {
+                        $stock = $stock + $itemTransaction->quantity;
+                        $stock_value = $stock_value + ($itemTransaction->quantity * $itemTransaction->price);
+                    }
+                }
+                Variant::where('id', $history->variant_id)->update([
+                    'stock' => $stock,
+                    'stock_value' => $stock_value
+                ]);
             }
-            Product::where('id', $history->product_id)->update([
-                'stock' => $quantity,
-                'stock_value' => $value
-            ]);
         }
     // delete sale order items
         $saleOrderItems = SaleOrderItem::where('sale_order_id', $id)->get();
@@ -244,62 +289,85 @@ class SaleOrderController extends Controller
         $qty = 0;
         $customer = Customer::where('id', request('customer'))->first();
         foreach (request('items') as $item) {
-            $product = Product::where('id', $item['item_id'])->first();
+            $product = Item::where('id', $item['item']['product']['id'])->first();
             // sale order item data
-            $qty = $qty + $item['qty'];
+            $qty = $qty + $item['item']['qty'];
             $saleItem = new SaleOrderItem();
-            $saleItem->sale_order_id = $id;
-            $saleItem->product_id = $item['item_id'];
-            $saleItem->qty = $item['qty'];
+            $saleItem->sale_order_id = $sale->id;
+            $saleItem->item_id = $item['item']['product']['id'];
+            if ($item['item']['variant'] !== null) {
+                $saleItem->variant_id = $item['item']['variant']['id'];
+            }
+            $saleItem->qty = $item['item']['qty'];
+            $saleItem->price = $item['item']['price'];
             $saleItem->save();
 
             // product transactions
 
-            $productHistory = new ProductHistory();
+            $productTransaction = new ItemTransaction();
             if ($customer) {
-                $productHistory->name = $customer->name;
+                $productTransaction->customer_id = $customer->id;
             }
-            $productHistory->product_id = $saleItem->product_id;
-            $productHistory->quantity = $saleItem->qty;
-            $productHistory->value =  $product->purchase_price;
-            $productHistory->action_type = 3;
-            $productHistory->date = $sale->invoice_date;
+            $productTransaction->item_id = $saleItem->item_id;
+            $productTransaction->variant_id = $saleItem->variant_id;
+            $productTransaction->quantity = $saleItem->qty;
+            if($saleItem->variant_id !== null) {
+                $productTransaction->price =  $item['item']['variant']['purchase_price'];
+            } else {
+                $productTransaction->price =  $product->purchase_price;
+            }
+            $productTransaction->type = 3;
+            $productTransaction->date = $sale->invoice_date;
             if ($sale->balance_due) {
                 if($sale->balance_due == $sale->amount) {
-                    $productHistory->status = 'Unpaid';
+                    $productTransaction->status = 'Unpaid';
                 } else {
-                    $productHistory->status = 'Partial';
+                    $productTransaction->status = 'Partial';
                 }
             } else {
-                $productHistory->status = 'Paid';
+                $productTransaction->status = 'Paid';
             }
-
-            $productHistory->save();
-
-            $saleProductTransaction = new SaleOrderProductTransaction();
+            $productTransaction->save();
+            $saleProductTransaction = new SaleOrderItemTransaction();
             $saleProductTransaction->sale_order_id = $sale->id;
-            $saleProductTransaction->transaction_id = $productHistory->id;
+            $saleProductTransaction->transaction_id = $productTransaction->id;
             $saleProductTransaction->save();
-
-            $productHistories = ProductHistory::where('product_id', $product->id)->get();
-            $quantity = 0;
-            $value = 0;
-            foreach ($productHistories as $item) {
-                if ($item->action_type === 1) {
-                    $quantity = $quantity - $item->quantity;
-                    $value = $value - ($item->quantity * $item->value);
-                } else if ($item->action_type === 3) {
-                    $quantity = $quantity - $item->quantity;
-                    $value = $value - ($item->quantity * $item->value);
-                } else {
-                    $quantity = $quantity + $item->quantity;
-                    $value = $value + ($item->quantity * $item->value);
+            if($saleItem->variant_id === null) {
+                error_log('here');
+                $itemTransactions = ItemTransaction::where('item_id', $item['item']['product']['id'])->where('active',1)->get();
+                $stock = 0;
+                $stock_value = 0;
+                foreach($itemTransactions as $itemTransaction) {
+                    if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+                        $stock = $stock - $itemTransaction->quantity;
+                        $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
+                    } else {
+                        $stock = $stock + $itemTransaction->quantity;
+                        $stock_value = $stock_value + ($itemTransaction->quantity * $itemTransaction->price);
+                    }
                 }
+                Item::where('id', $item['item']['product']['id'])->update([
+                    'stock' => $stock,
+                    'stock_value' => $stock_value
+                ]);
+            } else {
+                $itemTransactions = ItemTransaction::where('variant_id', $item['item']['variant']['id'])->where('active', 1)->get();
+                $stock = 0;
+                $stock_value = 0;
+                foreach($itemTransactions as $itemTransaction) {
+                    if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+                        $stock = $stock - $itemTransaction->quantity;
+                        $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
+                    } else {
+                        $stock = $stock + $itemTransaction->quantity;
+                        $stock_value = $stock_value + ($itemTransaction->quantity * $itemTransaction->price);
+                    }
+                }
+                Variant::where('id', $item['item']['variant']['id'])->update([
+                    'stock' => $stock,
+                    'stock_value' => $stock_value
+                ]);
             }
-            Product::where('id', $product->id)->update([
-                'stock' => $quantity,
-                'stock_value' => $value
-            ]);
         }
         // customer transactions
         if ($customer) {
@@ -326,6 +394,7 @@ class SaleOrderController extends Controller
 
         return $sale;
         } catch (\Throwable $e) {
+            error_log($e);
             return response()->json([
                 'error' => $e
             ],200);

@@ -40,7 +40,7 @@ class ProductHistoryController extends Controller
             'stock' => $quantity,
             'stock_value' => $value
         ]);
-        return Product::where('id',request('product_id'))->first();;
+        return Product::where('id',request('product_id'))->first();
     }
     public function apiIndexById($id) {
         return ProductHistory::where('product_id',$id)->orderBy('id','desc')->get();

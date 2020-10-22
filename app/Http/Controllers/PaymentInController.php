@@ -31,6 +31,7 @@ class PaymentInController extends Controller
         // create payment in
         $paymentIn = new PaymentIn();
         $paymentIn->customer_id = request('customer_id');
+        $paymentIn->branch_id = request('branch_id');
         $paymentIn->receipt_id = request('receipt_id');
         $paymentIn->receipt_date = request('receipt_date');
         $paymentIn->received = request('received');
@@ -70,6 +71,7 @@ class PaymentInController extends Controller
         return $paymentIn;
     }
     public function update($id) {
+        try {
         // update payment in
         PaymentIn::where('id', $id)->update([
             'received' => request('received'),
@@ -93,6 +95,9 @@ class PaymentInController extends Controller
             'balance' => $customerBalance
         ]);
         return PaymentIn::where('id', $id)->first();
+        } catch (\Throwable $e) {
+            error_log($e);
+        }
     }
 
     public function delete($id) {
