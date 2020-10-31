@@ -18,8 +18,9 @@ class CreateSupplierTransactionsTable extends Migration
              $table->string('name')->nullable();
              $table->integer('supplier_id')->unsigned();
              $table->foreign('supplier_id')->references('id')->on('suppliers');
-             $table->integer('quantity');
+             $table->integer('quantity')->nullable();
              $table->integer('value');
+             $table->integer('balance')->nullable();
              $table->integer('action_type');
              $table->date('date');
              $table->string('status')->nullable();

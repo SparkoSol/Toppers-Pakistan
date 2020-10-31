@@ -35,7 +35,7 @@ class ItemTransactionController extends Controller
         $stock = 0;
         $stock_value = 0;
         foreach($itemTransactions as $itemTransaction) {
-            if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+            if ($itemTransaction->type === 2 || $itemTransaction->type === 3 || $itemTransaction->type === 8) {
                 $stock = $stock - $itemTransaction->quantity;
                 $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
             } else {
@@ -72,7 +72,7 @@ class ItemTransactionController extends Controller
         $stock = 0;
         $stock_value = 0;
         foreach($itemTransactions as $itemTransaction) {
-            if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+            if ($itemTransaction->type === 2 || $itemTransaction->type === 3 || $itemTransaction->type === 8) {
                 $stock = $stock - $itemTransaction->quantity;
                 $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
             } else {
@@ -107,7 +107,7 @@ class ItemTransactionController extends Controller
         $stock = 0;
         $stock_value = 0;
         foreach($itemTransactions as $itemTransaction) {
-            if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+            if ($itemTransaction->type === 2 || $itemTransaction->type === 3 || $itemTransaction->type === 8) {
                 $stock = $stock - $itemTransaction->quantity;
                 $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
             } else {
@@ -147,7 +147,7 @@ class ItemTransactionController extends Controller
         $stock = 0;
         $stock_value = 0;
         foreach($itemTransactions as $itemTransaction) {
-            if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+            if ($itemTransaction->type === 2 || $itemTransaction->type === 3 || $itemTransaction->type === 8) {
                 $stock = $stock - $itemTransaction->quantity;
                 $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
             } else {

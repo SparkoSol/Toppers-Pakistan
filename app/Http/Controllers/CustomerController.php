@@ -27,14 +27,13 @@ class CustomerController extends Controller
     {
         error_log('we here');
         try {
-            return Customer::all();
+            return Customer::get();
         } catch (Exception $e) {
             error_log($e);
         }
     }
 
     public function customers() {
-        error_log('we here');
         try {
             return Customer::all();
         } catch (Exception $e) {

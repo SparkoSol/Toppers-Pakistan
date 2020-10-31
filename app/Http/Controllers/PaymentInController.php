@@ -18,11 +18,19 @@ class PaymentInController extends Controller
             return 1;
         }
     }
-    public function getPaymentIn() {
-        return PaymentIn::with('customer')->get();
+    public function getPaymentIn($id) {
+        if($id === '-1') {
+            return PaymentIn::with('customer')->with('branch')->get();
+        } else {
+            return PaymentIn::where('branch_id',$id)->with('branch')->with('customer')->get();
+        }
     }
-    public function customFilter() {
-        return PaymentIn::whereBetween('receipt_date', [request('from'), request('to')])->with('customer')->get();
+    public function customFilter($id) {
+        if($id === '-1') {
+            return PaymentIn::whereBetween('receipt_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+        } else {
+            return PaymentIn::where('branch_id',$id)->whereBetween('receipt_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+        }
     }
     public function getPaymentInById($id) {
         return PaymentIn::where('id',$id)->with('customer')->first();

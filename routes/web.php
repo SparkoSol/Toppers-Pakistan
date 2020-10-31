@@ -12,7 +12,7 @@
 */
 
 
-Route::get('/', function () {
+/*Route::get('/', function () {
     return view('welcome');
 });
 
@@ -174,3 +174,4 @@ Route::post('reset-password','ForgetPasswordController@resetPassword');
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+*/

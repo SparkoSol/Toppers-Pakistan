@@ -2,40 +2,40 @@
 
 namespace App\Http\Controllers;
 
-use App\SaleOrder;
-use App\SaleOrderItem;
-use App\Customer;
-use App\CustomerTransaction;
-use App\SaleOrderItemTransaction;
-use App\SaleOrderCustomerTransaction;
+use App\PurchaseOrder;
+use App\PurchaseOrderItem;
+use App\Supplier;
+use App\SupplierTransaction;
+use App\PurchaseOrderItemTransaction;
+use App\PurchaseOrderSupplierTransaction;
 use App\Item;
 use App\ItemTransaction;
 use App\Variant;
 use Illuminate\Http\Request;
 
-class SaleOrderController extends Controller
+class PurchaseOrderController extends Controller
 {
     public function getInvoiceNumber() {
-        $invoice = SaleOrder::latest()->first();
+        $invoice = PurchaseOrder::latest()->first();
         if($invoice) {
             return $invoice->invoice_id + 1;
         } else {
             return 1;
         }
     }
-    public function getSale() {
-        return SaleOrder::with('customer')->with('branch')->get();
+    public function getPurchase() {
+        return PurchaseOrder::with('supplier')->with('branch')->get();
     }
     public function filter($id,$branchId) {
         $month = date("m");
         $year = date('Y');
         switch ([$id, $branchId]) {
             case [4,-1]:
-                return SaleOrder::with('customer')->with('branch')->get();
+                return PurchaseOrder::with('supplier')->with('branch')->get();
             case [0,-1]:
-                return SaleOrder::whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return PurchaseOrder::whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [1,-1]:
-                return SaleOrder::whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return PurchaseOrder::whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [2,-1]:
                 if($month >= 1 && $month <= 3)
                 {
@@ -57,15 +57,15 @@ class SaleOrderController extends Controller
                     $start_date = date("Y-m-d",strtotime('1-October-'.$year));
                     $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
                 }
-                return SaleOrder::whereBetween('invoice_date', [$start_date, $end_date])->with('customer')->with('branch')->get();
+                return PurchaseOrder::whereBetween('invoice_date', [$start_date, $end_date])->with('supplier')->with('branch')->get();
             case [3,-1]:
-                return SaleOrder::whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return PurchaseOrder::whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [4, $branchId > 0]:
-                return SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [0,$branchId > 0]:
-                return SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [1,$branchId > 0]:
-                return SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [2,$branchId > 0]:
                 if($month >= 1 && $month <= 3)
                 {
@@ -87,48 +87,66 @@ class SaleOrderController extends Controller
                     $start_date = date("Y-m-d",strtotime('1-October-'.$year));
                     $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
                 }
-                return SaleOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->with('customer')->with('branch')->get();
+                return PurchaseOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->with('supplier')->with('branch')->get();
             case [3,$branchId > 0]:
-                return SaleOrder::where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return PurchaseOrder::where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
         }
     }
     public function customFilter($id) {
         if ($id === '-1') {
-            return SaleOrder::whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+            return PurchaseOrder::whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
         } else {
-            return SaleOrder::where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+            return PurchaseOrder::where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
         }
     }
-    public function getSaleById($id) {
-        return SaleOrder::where('id',$id)->with('customer')->with('branch')->first();
+    public function getPurchaseById($id) {
+        return PurchaseOrder::where('id',$id)->with('supplier')->with('branch')->first();
     }
-    public function getSaleByCustomer($id,$branchId) {
+    public function getPurchaseBySupplier($id,$branchId) {
         if ($branchId === '-1') {
-            return SaleOrder::where('customer_id',$id)->where('return_status', null)->with('branch')->get();
+            return PurchaseOrder::where('supplier_id',$id)->where('return_status', null)->with('branch')->get();
         } else {
-            return SaleOrder::where('branch_id',$branchId)->where('customer_id',$id)->where('return_status', null)->with('branch')->get();
+            return PurchaseOrder::where('branch_id',$branchId)->where('supplier_id',$id)->where('return_status', null)->with('branch')->get();
         }
+    }
+    public function getSummary($id) {
+        if ($id === '-1') {
+            $purchases = PurchaseOrder::All();
+        } else {
+            $purchases = PurchaseOrder::where('branch_id',$id)->get();
+        }
+        $unpaid = 0;
+        $paid = 0;
+        $total = 0;
+        foreach ($purchases as $purchase) {
+            $total = $total + $purchase->amount;
+            $unpaid = $unpaid + $purchase->balance_due;
+        }
+        $paid = $total - $unpaid;
+        return response()->json([
+            'total' => $total,
+            'paid' => $paid,
+            'unpaid' => $unpaid
+        ],200);
     }
     public function store() {
     try {
-        // sale order data
-        $sale = new SaleOrder();
-        $sale->invoice_date = request('invoiceDate');
-        $sale->invoice_id = request('invoiceNumber');
-        $sale->customer_id = request('customer');
-        $sale->branch_id = request('branchId');
-        $sale->payment_type = request('type');
+        // purchase order data
+        $purchase = new PurchaseOrder();
+        $purchase->invoice_date = request('invoiceDate');
+        $purchase->invoice_id = request('invoiceNumber');
+        $purchase->supplier_id = request('supplier');
+        $purchase->branch_id = request('branchId');
+        $purchase->payment_type = request('type');
         if (request('billingAddress') !== 'null')
-        $sale->billing_address = request('billingAddress');
-        $sale->amount = request('amount');
+        $purchase->billing_address = request('billingAddress');
+        $purchase->amount = request('amount');
         if (request('balance') !== 'null')
-        $sale->balance_due = request('balance');
-        if (request('discount') !== 'null')
-        $sale->discount = request('discount');
-        $sale->save();
+        $purchase->balance_due = request('balance');
+        $purchase->save();
         $qty = 0;
-        if ($sale->balance_due) {
-            if($sale->balance_due == $sale->amount) {
+        if ($purchase->balance_due) {
+            if($purchase->balance_due == $purchase->amount) {
                 $status = 'Unpaid';
             } else {
                 $status = 'Partial';
@@ -136,39 +154,40 @@ class SaleOrderController extends Controller
         } else {
             $status = 'Paid';
         }
-        $customer = Customer::where('id', request('customer'))->first();
+        $supplier = Supplier::where('id', request('supplier'))->first();
+        error_log($supplier);
         foreach (request('items') as $item) {
             $product = Item::where('id', $item['item']['product']['id'])->first();
-            // sale order item data
+            // purchase order item data
             $qty = $qty + $item['item']['qty'];
-            $saleItem = new SaleOrderItem();
-            $saleItem->sale_order_id = $sale->id;
-            $saleItem->item_id = $item['item']['product']['id'];
+            $purchaseItem = new PurchaseOrderItem();
+            $purchaseItem->purchase_order_id = $purchase->id;
+            $purchaseItem->item_id = $item['item']['product']['id'];
             if ($item['item']['variant'] !== null) {
-                $saleItem->variant_id = $item['item']['variant']['id'];
+                $purchaseItem->variant_id = $item['item']['variant']['id'];
             }
-            $saleItem->qty = $item['item']['qty'];
-            $saleItem->price = $item['item']['price'];
-            $saleItem->save();
+            $purchaseItem->qty = $item['item']['qty'];
+            $purchaseItem->price = $item['item']['price'];
+            $purchaseItem->save();
 
             // product transactions
 
             $productTransaction = new ItemTransaction();
-            if ($customer) {
-                $productTransaction->customer_id = $customer->id;
+            if ($supplier) {
+                $productTransaction->supplier_id = $supplier->id;
             }
-            $productTransaction->item_id = $saleItem->item_id;
-            $productTransaction->variant_id = $saleItem->variant_id;
-            $productTransaction->quantity = $saleItem->qty;
-            if($saleItem->variant_id !== null) {
+            $productTransaction->item_id = $purchaseItem->item_id;
+            $productTransaction->variant_id = $purchaseItem->variant_id;
+            $productTransaction->quantity = $purchaseItem->qty;
+            if($purchaseItem->variant_id !== null) {
                 $productTransaction->price =  $item['item']['variant']['purchase_price'];
             } else {
                 $productTransaction->price =  $product->purchase_price;
             }
-            $productTransaction->type = 3;
-            $productTransaction->date = $sale->invoice_date;
-            if ($sale->balance_due) {
-                if($sale->balance_due == $sale->amount) {
+            $productTransaction->type = 6;
+            $productTransaction->date = $purchase->invoice_date;
+            if ($purchase->balance_due) {
+                if($purchase->balance_due == $purchase->amount) {
                     $productTransaction->status = 'Unpaid';
                 } else {
                     $productTransaction->status = 'Partial';
@@ -177,11 +196,11 @@ class SaleOrderController extends Controller
                 $productTransaction->status = 'Paid';
             }
             $productTransaction->save();
-            $saleProductTransaction = new SaleOrderItemTransaction();
-            $saleProductTransaction->sale_order_id = $sale->id;
-            $saleProductTransaction->transaction_id = $productTransaction->id;
-            $saleProductTransaction->save();
-            if($saleItem->variant_id === null) {
+            $purchaseProductTransaction = new PurchaseOrderItemTransaction();
+            $purchaseProductTransaction->purchase_order_id = $purchase->id;
+            $purchaseProductTransaction->transaction_id = $productTransaction->id;
+            $purchaseProductTransaction->save();
+            if($purchaseItem->variant_id === null) {
                 error_log('here');
                 $itemTransactions = ItemTransaction::where('item_id', $item['item']['product']['id'])->where('active',1)->get();
                 $stock = 0;
@@ -218,36 +237,36 @@ class SaleOrderController extends Controller
                 ]);
             }
         }
-        // customer transactions
-        if ($customer) {
-            $customerTransaction = new CustomerTransaction();
-            $customerTransaction->customer_id = $customer->id;
-            $customerTransaction->quantity = $qty;
-            $customerTransaction->value = request('amount');
+        // supplier transactions
+        if ($supplier) {
+            $supplierTransaction = new SupplierTransaction();
+            $supplierTransaction->supplier_id = $supplier->id;
+            $supplierTransaction->quantity = $qty;
+            $supplierTransaction->value = request('amount');
             if (request('balance') !== 'null')
-                $customerTransaction->balance = request('balance');
-            $customerTransaction->action_type = 3;
-            $customerTransaction->date = request('invoiceDate');
-            $customerTransaction->status = $status;
-            $customerTransaction->save();
-            $customerTransactions = CustomerTransaction::where('customer_id', request('customer'))->get();
+                $supplierTransaction->balance = - request('balance');
+            $supplierTransaction->action_type = 6;
+            $supplierTransaction->date = request('invoiceDate');
+            $supplierTransaction->status = $status;
+            $supplierTransaction->save();
+            $supplierTransactions = SupplierTransaction::where('supplier_id', request('supplier'))->get();
             $totalAmount = 0;
             $totalBalance = 0;
-            foreach($customerTransactions as $value) {
+            foreach($supplierTransactions as $value) {
                 $totalBalance = $totalBalance + $value->balance;
             }
-            $customerBalance = $totalBalance;
+            $supplierBalance = $totalBalance;
 
-            Customer::where('id', request('customer'))->update([
-                'balance' => $customerBalance
+            Supplier::where('id', request('supplier'))->update([
+                'balance' => $supplierBalance
             ]);
             error_log('here');
-            $saleCustomerTransaction = new SaleOrderCustomerTransaction();
-            $saleCustomerTransaction->sale_order_id = $sale->id;
-            $saleCustomerTransaction->transaction_id = $customerTransaction->id;
-            $saleCustomerTransaction->save();
+            $purchaseSupplierTransaction = new PurchaseOrderSupplierTransaction();
+            $purchaseSupplierTransaction->purchase_order_id = $purchase->id;
+            $purchaseSupplierTransaction->transaction_id = $supplierTransaction->id;
+            $purchaseSupplierTransaction->save();
         }
-        return $sale;
+        return $purchase;
         } catch (\Throwable $e) {
             error_log($e);
         }
@@ -255,9 +274,9 @@ class SaleOrderController extends Controller
     public function update($id) {
         try {
         // delete item transactions
-        $itemTransactions = SaleOrderItemTransaction::where('sale_order_id', $id)->get();
+        $itemTransactions = PurchaseOrderItemTransaction::where('purchase_order_id', $id)->get();
         foreach ($itemTransactions as $itemTransaction) {
-            SaleOrderItemTransaction::where('id', $itemTransaction->id)->delete();
+            PurchaseOrderItemTransaction::where('id', $itemTransaction->id)->delete();
             $history = ItemTransaction::where('id', $itemTransaction->transaction_id)->first();
             ItemTransaction::where('id', $itemTransaction->transaction_id)->delete();
             if($history->variant_id === null) {
@@ -296,28 +315,24 @@ class SaleOrderController extends Controller
                 ]);
             }
         }
-    // delete sale order items
-        $saleOrderItems = SaleOrderItem::where('sale_order_id', $id)->get();
-        foreach ($saleOrderItems as $saleOrderItem) {
-            SaleOrderItem::where('id', $saleOrderItem->id)->delete();
+    // delete purchase order items
+        $purchaseOrderItems = PurchaseOrderItem::where('purchase_order_id', $id)->get();
+        foreach ($purchaseOrderItems as $purchaseOrderItem) {
+            PurchaseOrderItem::where('id', $purchaseOrderItem->id)->delete();
         }
-    // update sale order data
+    // update purchase order data
         if (request('billingAddress') !== 'null')
             $billing_address = request('billingAddress');
         $amount = request('amount');
         if (request('balance') !== 'null')
             $balance_due = request('balance');
-        if (request('discount') !== 'null')
-            $discount = request('discount');
 
-
-        SaleOrder::where('id', $id)->update([
+        PurchaseOrder::where('id', $id)->update([
             'billing_address' => $billing_address,
             'amount' => $amount,
-            'balance_due' => $balance_due,
-            'discount' => $discount
+            'balance_due' => $balance_due
         ]);
-        $sale = SaleOrder::where('id', $id)->first();
+        $purchase = PurchaseOrder::where('id', $id)->first();
 
         if ($balance_due) {
             if($balance_due == $amount) {
@@ -329,39 +344,39 @@ class SaleOrderController extends Controller
             $status = 'Paid';
         }
         $qty = 0;
-        $customer = Customer::where('id', request('customer'))->first();
+        $supplier = Supplier::where('id', request('supplier'))->first();
         foreach (request('items') as $item) {
             $product = Item::where('id', $item['item']['product']['id'])->first();
-            // sale order item data
+            // purchase order item data
             $qty = $qty + $item['item']['qty'];
-            $saleItem = new SaleOrderItem();
-            $saleItem->sale_order_id = $sale->id;
-            $saleItem->item_id = $item['item']['product']['id'];
+            $purchaseItem = new PurchaseOrderItem();
+            $purchaseItem->purchase_order_id = $purchase->id;
+            $purchaseItem->item_id = $item['item']['product']['id'];
             if ($item['item']['variant'] !== null) {
-                $saleItem->variant_id = $item['item']['variant']['id'];
+                $purchaseItem->variant_id = $item['item']['variant']['id'];
             }
-            $saleItem->qty = $item['item']['qty'];
-            $saleItem->price = $item['item']['price'];
-            $saleItem->save();
+            $purchaseItem->qty = $item['item']['qty'];
+            $purchaseItem->price = $item['item']['price'];
+            $purchaseItem->save();
 
             // product transactions
 
             $productTransaction = new ItemTransaction();
-            if ($customer) {
-                $productTransaction->customer_id = $customer->id;
+            if ($supplier) {
+                $productTransaction->supplier_id = $supplier->id;
             }
-            $productTransaction->item_id = $saleItem->item_id;
-            $productTransaction->variant_id = $saleItem->variant_id;
-            $productTransaction->quantity = $saleItem->qty;
-            if($saleItem->variant_id !== null) {
+            $productTransaction->item_id = $purchaseItem->item_id;
+            $productTransaction->variant_id = $purchaseItem->variant_id;
+            $productTransaction->quantity = $purchaseItem->qty;
+            if($purchaseItem->variant_id !== null) {
                 $productTransaction->price =  $item['item']['variant']['purchase_price'];
             } else {
                 $productTransaction->price =  $product->purchase_price;
             }
-            $productTransaction->type = 3;
-            $productTransaction->date = $sale->invoice_date;
-            if ($sale->balance_due) {
-                if($sale->balance_due == $sale->amount) {
+            $productTransaction->type = 6;
+            $productTransaction->date = $purchase->invoice_date;
+            if ($purchase->balance_due) {
+                if($purchase->balance_due == $purchase->amount) {
                     $productTransaction->status = 'Unpaid';
                 } else {
                     $productTransaction->status = 'Partial';
@@ -370,11 +385,11 @@ class SaleOrderController extends Controller
                 $productTransaction->status = 'Paid';
             }
             $productTransaction->save();
-            $saleProductTransaction = new SaleOrderItemTransaction();
-            $saleProductTransaction->sale_order_id = $sale->id;
-            $saleProductTransaction->transaction_id = $productTransaction->id;
-            $saleProductTransaction->save();
-            if($saleItem->variant_id === null) {
+            $purchaseProductTransaction = new PurchaseOrderItemTransaction();
+            $purchaseProductTransaction->purchase_order_id = $purchase->id;
+            $purchaseProductTransaction->transaction_id = $productTransaction->id;
+            $purchaseProductTransaction->save();
+            if($purchaseItem->variant_id === null) {
                 error_log('here');
                 $itemTransactions = ItemTransaction::where('item_id', $item['item']['product']['id'])->where('active',1)->get();
                 $stock = 0;
@@ -411,30 +426,30 @@ class SaleOrderController extends Controller
                 ]);
             }
         }
-        // customer transactions
-        if ($customer) {
-            $saleCustomerTransaction = SaleOrderCustomerTransaction::where('sale_order_id', $id)->first();
-            CustomerTransaction::where('id', $saleCustomerTransaction->transaction_id)->update([
+        // supplier transactions
+        if ($supplier) {
+            $purchaseSupplierTransaction = PurchaseOrderSupplierTransaction::where('purchase_order_id', $id)->first();
+            SupplierTransaction::where('id', $purchaseSupplierTransaction->transaction_id)->update([
                 'quantity' => $qty,
                 'value' => request('amount'),
-                'balance' => request('balance'),
+                'balance' => - request('balance'),
                 'status' =>$status
             ]);
-            $customerTransactions = CustomerTransaction::where('customer_id', request('customer'))->get();
+            $supplierTransactions = SupplierTransaction::where('supplier_id', request('supplier'))->get();
             $totalAmount = 0;
             $totalBalance = 0;
-            foreach($customerTransactions as $value) {
+            foreach($supplierTransactions as $value) {
                 error_log($value);
                 $totalBalance = $totalBalance + $value->balance;
             }
-            $customerBalance = $totalBalance;
+            $supplierBalance = $totalBalance;
 
-            Customer::where('id', request('customer'))->update([
-                'balance' => $customerBalance
+            Supplier::where('id', request('supplier'))->update([
+                'balance' => $supplierBalance
             ]);
         }
 
-        return $sale;
+        return $purchase;
         } catch (\Throwable $e) {
             error_log($e);
             return response()->json([
@@ -442,35 +457,15 @@ class SaleOrderController extends Controller
             ],200);
         }
     }
-    public function getSummary($id) {
-        if ($id === '-1') {
-            $sales = SaleOrder::All();
-        } else {
-            $sales = SaleOrder::where('branch_id',$id)->get();
-        }
-        $unpaid = 0;
-        $paid = 0;
-        $total = 0;
-        foreach ($sales as $sale) {
-            $total = $total + $sale->amount;
-            $unpaid = $unpaid + $sale->balance_due;
-        }
-        $paid = $total - $unpaid;
-        return response()->json([
-            'total' => $total,
-            'paid' => $paid,
-            'unpaid' => $unpaid
-        ],200);
-    }
     public function delete($id) {
         try {
-            SaleOrder::where('id', $id)->delete();
+            PurchaseOrder::where('id', $id)->delete();
             return response()->json([
-                'message' => 'Order Deleted Successfully'
+                'message' => 'Purchase Order Deleted Successfully'
             ],200);
         } catch(\Throwable $e) {
             return response()->json([
-                'error' => 'Sale Order Cannot Be Deleted'
+                'error' => 'Purchase Order Cannot Be Deleted'
             ],200);
         }
     }

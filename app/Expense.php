@@ -4,11 +4,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PaymentIn extends Model
+class Expense extends Model
 {
-    public function customer(){
-        return $this->belongsTo(Customer::class);
-    }
+    protected $fillable = [
+        'title', 'description', 'branch_id', 'total', 'paid',' balance', 'type'
+    ];
     public function branch(){
         return $this->belongsTo(RestaurantBranch::class);
     }

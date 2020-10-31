@@ -5,15 +5,12 @@ namespace App;
 use App\Address;
 use App\ForgetPassword;
 use App\CustomerTransaction;
-use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-
 use Illuminate\Database\Eloquent\Model;
 
-class Customer extends Authenticatable
+class Customer extends Model
 {
-    use HasApiTokens, Notifiable;
 
     public function orders(){
         return $this->hasMany(Order::class);

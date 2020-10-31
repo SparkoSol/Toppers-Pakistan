@@ -83,8 +83,14 @@ class RestaurantBranchController extends Controller
     {
         try {
             error_log('here');
+            $branch = RestaurantBranch::where('id', $id)->first();
             RestaurantBranch::where('id', $id)
                 ->delete();
+            if ($branch->image != null) {
+                if (file_exists(public_path('images/branch/').$branch->image)) {
+                    unlink(public_path('images/branch/').$branch->image);
+                }
+            }
         } catch(\Throwable $e)  {
             return response()->json([
                 'error' => 'Cannot delete Branch.',

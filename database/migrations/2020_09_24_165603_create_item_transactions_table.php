@@ -19,6 +19,8 @@ class CreateItemTransactionsTable extends Migration
             $table->foreign('item_id')->references('id')->on('items');
             $table->integer('customer_id')->unsigned()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers');
+            $table->integer('supplier_id')->unsigned()->nullable();
+            $table->foreign('supplier_id')->references('id')->on('suppliers');
             $table->integer('variant_id')->unsigned()->nullable();
             $table->foreign('variant_id')->references('id')->on('variants');
             $table->date('date');

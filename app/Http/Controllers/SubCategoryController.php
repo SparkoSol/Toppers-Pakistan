@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 
 use App\SubCategory;
 use App\Category;
-use App\Product;
+use App\Item;
 use Illuminate\Http\Request;
 
 class SubCategoryController extends Controller
@@ -57,8 +57,14 @@ class SubCategoryController extends Controller
     {
         $name = request('name');
         $category = request('category_id');
+        $subCategory = SubCategory::where('id',$id)->first();
         error_log($category);
         if(request('image') != null){
+            if ($subCategory->image != null) {
+                if (file_exists(public_path('images/subCategory/').$subCategory->image)) {
+                    unlink(public_path('images/subCategory/').$subCategory->image);
+                }
+            }
             $imageName = time().'.'.request()->image->getClientOriginalExtension();
             request()->image->move(public_path('images/subCategory'), $imageName);
             return SubCategory::where('id', $id)
@@ -80,8 +86,14 @@ class SubCategoryController extends Controller
     {
         try {
             error_log('here');
+            $subCategory = SubCategory::where('id',$id)->first();
             SubCategory::where('id', $id)
                 ->delete();
+            if ($subCategory->image != null) {
+                if (file_exists(public_path('images/subCategory/').$subCategory->image)) {
+                    unlink(public_path('images/subCategory/').$subCategory->image);
+                }
+            }
         } catch(\Throwable $e)  {
             return response()->json([
                 'error' => 'Please delete all products relevant to this sub category inorder to remove this sub category.',
@@ -101,7 +113,7 @@ class SubCategoryController extends Controller
 
     public function apiProducts($id)
     {
-        $products = Product::where('subCategory_id',$id)->get();
+        $products = Item::where('subCategory_id',$id)->get();
         return $products;
     }
 }

@@ -4,10 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class PaymentIn extends Model
+class PurchaseOrder extends Model
 {
-    public function customer(){
-        return $this->belongsTo(Customer::class);
+    public function supplier(){
+        return $this->belongsTo(Supplier::class);
     }
     public function branch(){
         return $this->belongsTo(RestaurantBranch::class);

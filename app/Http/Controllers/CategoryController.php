@@ -51,8 +51,14 @@ class CategoryController extends Controller
 
     public function updateCategory($id)
     {
+        $category = Category::where('id',$id)->first();
         $name = request('name');
         if(request('image') != null){
+            if ($category->image != null) {
+                if (file_exists(public_path('images/category/').$category->image)) {
+                    unlink(public_path('images/category/').$category->image);
+                }
+            }
             $imageName = time().'.'.request()->image->getClientOriginalExtension();
             request()->image->move(public_path('images/category'), $imageName);
             return Category::where('id', $id)
@@ -70,9 +76,14 @@ class CategoryController extends Controller
     public function deleteCategory($id)
     {
         try {
-            error_log('here');
+            $category = Category::where('id',$id)->first();
             Category::where('id', $id)
                 ->delete();
+            if ($category->image != null) {
+                if (file_exists(public_path('images/category/').$category->image)) {
+                    unlink(public_path('images/category/').$category->image);
+                }
+            }
         } catch(\Throwable $e)  {
             return response()->json([
                 'error' => 'Please delete all Sub Categories relevant to this category inorder to remove this category.',

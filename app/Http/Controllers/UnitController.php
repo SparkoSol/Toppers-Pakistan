@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Unit;
-use App\Product;
+use App\Item;
 use Illuminate\Http\Request;
 
 class UnitController extends Controller
@@ -78,6 +78,6 @@ class UnitController extends Controller
     }
 
     public function getProducts($id) {
-        return Product::where('unit_id', $id)->get();
+        return Item::where('unit_id', $id)->get();
     }
 }

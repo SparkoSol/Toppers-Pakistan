@@ -28,6 +28,7 @@ class FirebaseController extends Controller
 
     public function store(){
         error_log('here');
+        try {
         $db = new FirestoreClient([
             'projectId'=> 'toppers-pakistan'
         ]);
@@ -45,13 +46,18 @@ class FirebaseController extends Controller
         $addedDocRef->set($data);
 
         return $data;
+        } catch( \Throwable $e) {
+            error_log($e);
+        }
     }
 
     public function get() {
         $db = new FirestoreClient([
             'projectId'=> 'toppers-pakistan'
         ]);
-        $data = $db->collection('notifications')->documents();
+        $data = $db->collection('notifications');
+        dd($db);
+        $newData = $data->documents();
         $notifications = [];
         foreach ($data as $item) {
             $obj = new Notification();

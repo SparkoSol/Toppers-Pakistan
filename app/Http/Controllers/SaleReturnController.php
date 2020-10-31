@@ -26,14 +26,22 @@ class SaleReturnController extends Controller
             return 1;
         }
     }
-    public function getSaleReturn() {
-        return SaleReturn::with('customer')->get();
+    public function getSaleReturn($id) {
+        if($id === '-1') {
+            return SaleReturn::with('customer')->with('SaleOrder.branch')->get();
+        } else {
+            return SaleReturn::where('branch_id',$id)->with('customer')->with('SaleOrder.branch')->get();
+        }
     }
     public function getSaleReturnById($id) {
         return SaleReturn::where('id', $id)->with('customer')->with('SaleOrder.branch')->first();
     }
-    public function customFilter() {
-        return SaleReturn::whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->get();
+    public function customFilter($id) {
+        if($id === '-1') {
+            return SaleReturn::whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('SaleOrder.branch')->get();
+        } else {
+            return SaleReturn::where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('SaleOrder.branch')->get();
+        }
     }
     public function store() {
         try {
@@ -84,7 +92,7 @@ class SaleReturnController extends Controller
                     $stock = 0;
                     $stock_value = 0;
                     foreach($itemTransactions as $itemTransaction) {
-                        if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+                        if ($itemTransaction->type === 2 || $itemTransaction->type === 3 || $itemTransaction->type === 8) {
                             $stock = $stock - $itemTransaction->quantity;
                             $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
                         } else {
@@ -101,7 +109,7 @@ class SaleReturnController extends Controller
                     $stock = 0;
                     $stock_value = 0;
                     foreach($itemTransactions as $itemTransaction) {
-                        if ($itemTransaction->type === 2 || $itemTransaction->type === 3) {
+                        if ($itemTransaction->type === 2 || $itemTransaction->type === 3 || $itemTransaction->type === 8) {
                             $stock = $stock - $itemTransaction->quantity;
                             $stock_value = $stock_value - ($itemTransaction->quantity * $itemTransaction->price);
                         } else {
@@ -188,7 +196,7 @@ class SaleReturnController extends Controller
             $customerTransaction = CustomerTransaction::where('id', $saleReturnCustomerTransaction->transaction_id)->first();
             CustomerTransaction::where('id', $saleReturnCustomerTransaction->transaction_id)->update([
                 'status' => $status,
-                'balance' => request('balance')
+                'balance' => - request('balance')
             ]);
             $customerTransactions = CustomerTransaction::where('customer_id', $customerTransaction->customer_id)->get();
             $totalBalance = 0;
