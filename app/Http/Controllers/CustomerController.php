@@ -83,6 +83,7 @@ class CustomerController extends Controller
 	}
 
     public function register(){
+        error_log('register');
 		$allCustomers = Customer::all();
 		foreach ($allCustomers as $customerOne) {
 			if($customerOne->email == request('email')){
@@ -90,10 +91,7 @@ class CustomerController extends Controller
 			}
 		}
 		request()->validate([
-			'email'=>'required',
-			'name'=>'required',
-            'password'=>'required',
-            'phone'=>'required'
+			'name'=>'required'
 		]);
 		$customer = new Customer();
 		$customer->email =    request('email');
@@ -107,7 +105,6 @@ class CustomerController extends Controller
 
 	public function login(){
 		request()->validate([
-			'email'=>'required',
 			'password'=>'required'
 		]);
 		$customer= Customer::where('email',request('email'))->first();

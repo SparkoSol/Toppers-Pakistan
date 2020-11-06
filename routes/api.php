@@ -56,10 +56,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 //Carousel
     Route::get('/carosel', 'CaroselController@indexApi');
-    Route::post('/orderConfirmation', 'OrderController@sendEmailApi');
+
+    Route::get('saleOrder/mail/{id}', 'SaleOrderController@sendEmailApi');
 
 //Forget Password
+    Route::get('/forgetPassword/{id}', 'ForgetPasswordController@get');
     Route::post('/forgetPassword', 'ForgetPasswordController@index');
+    Route::post('reset-password','ForgetPasswordController@resetPassword');
 
 //New Routes For Admin Panel
 
@@ -79,6 +82,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('subcategory/store', 'SubCategoryController@storeSubCategory');
     Route::post('subcategory/update/{id}', 'SubCategoryController@updateSubCategory');
     Route::delete('subcategory/delete/{id}', 'SubCategoryController@deleteSubCategory');
+    Route::get('/subCategory/{id}/product/available/{branch}', 'SubCategoryController@availableItems');
 //Unit
     Route::get('/unit', 'UnitController@apiIndex');
     Route::get('/unit/{id}', 'UnitController@getById');
@@ -142,8 +146,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::get('/saleOrder/filter/{id}/{branchId}','SaleOrderController@filter');
     Route::get('/saleOrder/{id}','SaleOrderController@getSaleById');
     Route::post('/saleOrder/update/{id}','SaleOrderController@update');
-    Route::get('/saleOrder/customer/{id}/{branchId}','SaleOrderController@getSaleByCustomer');
+    Route::get('/saleOrder/branch/{branchId}','SaleOrderController@getSaleByBranch');
+    Route::get('saleOrder/customer/{id}/{branchId}', 'SaleOrderController@getSalesByCustomer');
     Route::delete('/saleOrder/delete/{id}', 'SaleOrderController@delete');
+    Route::get('/saleOrder/paid/{id}', 'SaleOrderController@markAsPaid');
+    Route::get('/saleOrder/complete/{id}', 'SaleOrderController@markAsComplete');
 
 
 // Sale Order Items Route
@@ -209,6 +216,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 // Option
 
     Route::get('option/item/{id}', 'OptionController@getByItem');
+    Route::get('option/item/{id}/app', 'OptionController@getByItemApp');
 
 // Variant
 

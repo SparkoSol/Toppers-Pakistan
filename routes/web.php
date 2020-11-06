@@ -11,16 +11,16 @@
 |
 */
 
-
-/*Route::get('/', function () {
+/*
+Route::get('/', function () {
     return view('welcome');
 });
-
+*/
 Route::get('/privacy-policy', function () {
     return view('privacy_policy');
 });
 
-
+/*
 Route::get('/register-admin','UserController@registerAdmin');
 Route::post('/register','UserController@register');
 

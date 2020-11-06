@@ -12,6 +12,8 @@ use App\Item;
 use App\ItemTransaction;
 use App\Variant;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\MailSenderApi;
 
 class SaleOrderController extends Controller
 {
@@ -24,7 +26,7 @@ class SaleOrderController extends Controller
         }
     }
     public function getSale() {
-        return SaleOrder::with('customer')->with('branch')->get();
+        return SaleOrder::with('customer')->with('branch')->with('address')->get();
     }
     public function filter($id,$branchId) {
         $month = date("m");
@@ -102,11 +104,18 @@ class SaleOrderController extends Controller
     public function getSaleById($id) {
         return SaleOrder::where('id',$id)->with('customer')->with('branch')->first();
     }
-    public function getSaleByCustomer($id,$branchId) {
+    public function getSaleByBranch($branchId) {
+        if ($branchId === '-1') {
+            return SaleOrder::where('return_status', null)->with('branch')->get();
+        } else {
+            return SaleOrder::where('branch_id',$branchId)->where('return_status', null)->with('branch')->get();
+        }
+    }
+    public function getSalesByCustomer($id,$branchId) {
         if ($branchId === '-1') {
             return SaleOrder::where('customer_id',$id)->where('return_status', null)->with('branch')->get();
         } else {
-            return SaleOrder::where('branch_id',$branchId)->where('customer_id',$id)->where('return_status', null)->with('branch')->get();
+            return SaleOrder::where('customer_id',$id)->where('branch_id',$branchId)->where('return_status', null)->with('branch')->get();
         }
     }
     public function store() {
@@ -117,6 +126,14 @@ class SaleOrderController extends Controller
         $sale->invoice_id = request('invoiceNumber');
         $sale->customer_id = request('customer');
         $sale->branch_id = request('branchId');
+        if (request('address_id') != null)
+            $sale->address_id = request('address_id');
+        if(request('instruction') != null)
+            $sale->instructions = request('instruction');
+        if(request('origin') != null)
+            $sale->origin = request('origin');
+        if(request('delivery') != null)
+            $sale->delivery = request('delivery');
         $sale->payment_type = request('type');
         if (request('billingAddress') !== 'null')
         $sale->billing_address = request('billingAddress');
@@ -138,6 +155,7 @@ class SaleOrderController extends Controller
         }
         $customer = Customer::where('id', request('customer'))->first();
         foreach (request('items') as $item) {
+            error_log('In Item List');
             $product = Item::where('id', $item['item']['product']['id'])->first();
             // sale order item data
             $qty = $qty + $item['item']['qty'];
@@ -473,5 +491,68 @@ class SaleOrderController extends Controller
                 'error' => 'Sale Order Cannot Be Deleted'
             ],200);
         }
+    }
+    public function markAsPaid($id) {
+        try {
+            // get sale order
+            $saleOrder = SaleOrder::where('id', $id)->first();
+            // set sale order balance to zero
+            SaleOrder::where('id',$id)->update([
+                'balance_due' => 0
+            ]);
+            // get sale order item transactions
+            $saleOrderItemTransactions = SaleOrderItemTransaction::where('sale_order_id',$id)->get();
+            foreach ($saleOrderItemTransactions as $saleOrderItemTransaction) {
+            // set item transaction status to paid
+                ItemTransaction::where('id', $saleOrderItemTransaction->transaction_id)->update([
+                    'status' => 'Paid'
+                ]);
+            }
+            // get sale order customer transaction
+            $saleOrderCustomerTransaction = SaleOrderCustomerTransaction::where('sale_order_id',$id)->first();
+            // set customer transaction balance to zero
+            CustomerTransaction::where('id', $saleOrderCustomerTransaction->transaction_id)->update([
+                'balance' => 0,
+                'status' => 'Paid'
+            ]);
+            // recalculate customer balance
+            $customerTransactions = CustomerTransaction::where('customer_id', $saleOrder->customer_id)->get();
+            $totalAmount = 0;
+            $totalBalance = 0;
+            foreach($customerTransactions as $value) {
+                error_log($value);
+                $totalBalance = $totalBalance + $value->balance;
+            }
+            $customerBalance = $totalBalance;
+
+            Customer::where('id', $saleOrder->customer_id)->update([
+                'balance' => $customerBalance
+            ]);
+        } catch (\Throwable $e) {
+            error_log($e);
+        }
+    }
+    public function markAsComplete($id) {
+        SaleOrder::where('id',$id)->update([
+            'delivery_status' => 'Complete'
+        ]);
+    }
+    public function sendEmailApi($id) {
+        $saleOrder = SaleOrder::where('id',$id)->with('customer')->with('branch')->with('address')->first();
+        $saleOrderItems = SaleOrderItem::where('sale_order_id',$id)->with('variant')->with('product')->get();
+        $data = array(
+            'customer' => $saleOrder->customer,
+            'order' => $saleOrder,
+            'address' => $saleOrder->address,
+            'branch' => $saleOrder->branch['name'],
+            'price' => $saleOrder->amount,
+            'delivery' => $saleOrder->delivery,
+            'items' => $saleOrderItems,
+            'orderId' => $saleOrder->invoice_id
+        );
+
+        Mail::to($saleOrder->customer['email'])->send(
+            new MailSenderApi($data,'Order Placed')
+        );
     }
 }

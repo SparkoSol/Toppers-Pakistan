@@ -12,32 +12,40 @@ use Illuminate\Support\Facades\Validator;
 class ForgetPasswordController extends Controller
 {
     public function index(){
-        $customer = Customer::where('email',request('email'))->first();
+        try {
+            $customer = Customer::where('email',request('email'))->first();
 
-        if($customer){
-            if($customer->other){
-                return "false";
+            if($customer){
+                if($customer->other){
+                    return "false";
+                }else{
+                $token = bcrypt($customer->name);
+                $forgetPass = new ForgetPassword();
+                $forgetPass->customer_id = $customer->id;
+                $forgetPass->token = $token;
+
+                $forgetPass->save();
+                $data = array(
+                    'id' =>  $forgetPass->id,
+                    'name' => $customer->name,
+                    'token' => $token
+                );
+
+                Mail::to($customer->email)->send(
+                    new ForgetMail($data,'Reset Password')
+                );
+                return "true";
+                }
             }else{
-            $token = bcrypt($customer->name);
-            $forgetPass = new ForgetPassword();
-            $forgetPass->customer_id = $customer->id;
-            $forgetPass->token = $token;
-
-            $forgetPass->save();
-            $data = array(
-                'id' =>  $forgetPass->id,
-                'name' => $customer->name,
-                'token' => $token
-            );
-
-            Mail::to($customer->email)->send(
-                new ForgetMail($data,'Reset Password')
-            );
-            return "true";
+                return "false";
             }
-        }else{
-            return "false";
+        } catch (\Throwable $e) {
+            error_log($e);
         }
+    }
+
+    public function get($id) {
+       return ForgetPassword::where('id',$id)->first();
     }
 
     public function changePass(){
@@ -56,24 +64,23 @@ class ForgetPasswordController extends Controller
     }
 
     public function resetPassword(){
-        session_start();
-        $validatedData = request()->validate([
-            'password' => ['required', 'string','min:8' , 'confirmed']
-        ]);
-        $forgetPass = $_SESSION['forgetPass'];
-        $customer = Customer::where('id',$forgetPass->customer_id)->first();
-        if($customer){
-            $customer->update([
-                'password'  => bcrypt(request('password')),
+        try {
+            $validatedData = request()->validate([
+                'password' => ['required']
             ]);
+            $forgetPass = ForgetPassword::where('id',request('id'))->first();
+            $customer = Customer::where('id',$forgetPass->customer_id)->first();
+            if($customer){
+                $customer->update([
+                    'password'  => bcrypt(request('password')),
+                ]);
 
-            ForgetPassword::where('id',$forgetPass->id)->delete();
-            session_destroy();
-            return view('password-changed');
-        }
-        else{
-            session_destroy();
-            return view('problem');
+                ForgetPassword::where('id',$forgetPass->id)->delete();
+                return "true";
+            }
+            return "false";
+        } catch(\Throwable $e) {
+            error_log($e);
         }
     }
 }

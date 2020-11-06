@@ -29,6 +29,9 @@ class OptionController extends Controller
         }
         return $sendOption;
     }
+    public function getByItemApp($id) {
+        return Option::where('item_id',$id)->with('values')->get();
+    }
 }
 
 class OptionApi {

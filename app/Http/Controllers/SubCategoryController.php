@@ -6,6 +6,8 @@ namespace App\Http\Controllers;
 use App\SubCategory;
 use App\Category;
 use App\Item;
+use App\Variant;
+use App\ItemImage;
 use Illuminate\Http\Request;
 
 class SubCategoryController extends Controller
@@ -104,6 +106,26 @@ class SubCategoryController extends Controller
     public function apiIndex()
     {
         return SubCategory::all();
+    }
+    public function availableItems($id,$branch)
+    {
+        error_log($branch);
+        $sendItems = [];
+        if ($branch !== 'null') {
+            $items = Item::where('subCategory_id',$id)->where('branch_id',$branch)->with('unit')->get();
+        } else {
+            $items = Item::where('subCategory_id',$id)->with('unit')->get();
+        }
+        foreach ($items as $item) {
+            $obj = new \stdClass();
+            $variants = Variant::where('item_id', $item->id)->where('stock','>',0)->get();
+            $images = ItemImage::where('item_id',$item->id)->get();
+            $obj->item = $item;
+            $obj->variants = $variants;
+            $obj->images = $images;
+            array_push($sendItems,$obj);
+        }
+        return $sendItems;
     }
 
     public function apiIndexById($id)

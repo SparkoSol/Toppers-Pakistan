@@ -19,12 +19,18 @@ class CreateSaleOrdersTable extends Migration
             $table->string('invoice_id');
             $table->integer('customer_id')->unsigned()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers');
+            $table->integer('address_id')->unsigned()->nullable();
+            $table->foreign('address_id')->references('id')->on('addresses');
             $table->integer('branch_id')->unsigned();
             $table->foreign('branch_id')->references('id')->on('restaurant_branches');
             $table->string('payment_type');
             $table->string('billing_address')->nullable();
             $table->string('amount');
+            $table->string('delivery_status')->default('Pending');
+            $table->string('origin')->default('Web Order');
+            $table->boolean('delivery')->default(false);
             $table->string('discount')->nullable();
+            $table->string('instructions')->nullable()->default("No Instructions");
             $table->string('balance_due')->nullable();
             $table->string('return_status')->nullable();
             $table->timestamps();

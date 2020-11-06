@@ -125,39 +125,41 @@ class SaleReturnController extends Controller
             }
             // create customer transactions
             $saleOrderCustomerTransaction = SaleOrderCustomerTransaction::where('sale_order_id', $saleOrder->id)->first();
-            $customerTransaction = CustomerTransaction::where('id', $saleOrderCustomerTransaction->transaction_id)->first();
-            $newCustomerTransaction = new CustomerTransaction();
-            $newCustomerTransaction->customer_id = $customerTransaction->customer_id;
-            $newCustomerTransaction->quantity = $customerTransaction->quantity;
-            $newCustomerTransaction->value = $customerTransaction->value;
-            $newCustomerTransaction->balance = - request('balance');
-            $newCustomerTransaction->action_type = 5;
-            $newCustomerTransaction->date = request('invoiceDate');
-            if (request('balance')) {
-                if (request('balance') != 0)
-                    $newCustomerTransaction->status = 'Partial';
-                else if (request('balance') == 0)
+            if ($saleOrderCustomerTransaction) {
+                $customerTransaction = CustomerTransaction::where('id', $saleOrderCustomerTransaction->transaction_id)->first();
+                $newCustomerTransaction = new CustomerTransaction();
+                $newCustomerTransaction->customer_id = $customerTransaction->customer_id;
+                $newCustomerTransaction->quantity = $customerTransaction->quantity;
+                $newCustomerTransaction->value = $customerTransaction->value;
+                $newCustomerTransaction->balance = - request('balance');
+                $newCustomerTransaction->action_type = 5;
+                $newCustomerTransaction->date = request('invoiceDate');
+                if (request('balance')) {
+                    if (request('balance') != 0)
+                        $newCustomerTransaction->status = 'Partial';
+                    else if (request('balance') == 0)
+                        $newCustomerTransaction->status = 'Paid';
+                    else
+                        $newCustomerTransaction->status = 'Unpaid';
+                } else {
                     $newCustomerTransaction->status = 'Paid';
-                else
-                    $newCustomerTransaction->status = 'Unpaid';
-            } else {
-                $newCustomerTransaction->status = 'Paid';
+                }
+                $newCustomerTransaction->save();
+                $customerTransactions = CustomerTransaction::where('customer_id', $customerTransaction->customer_id)->get();
+                $totalBalance = 0;
+                foreach($customerTransactions as $value) {
+                    error_log($value);
+                    $totalBalance = $totalBalance + $value->balance;
+                }
+                Customer::where('id', $customerTransaction->customer_id)->update([
+                    'balance' => $totalBalance
+                ]);
+                // create sale return customer transaction
+                $saleReturnCustomerTransaction = new SaleReturnCustomerTransaction();
+                $saleReturnCustomerTransaction->sale_return_id = $saleReturn->id;
+                $saleReturnCustomerTransaction->transaction_id = $newCustomerTransaction->id;
+                $saleReturnCustomerTransaction->save();
             }
-            $newCustomerTransaction->save();
-            $customerTransactions = CustomerTransaction::where('customer_id', $customerTransaction->customer_id)->get();
-            $totalBalance = 0;
-            foreach($customerTransactions as $value) {
-                error_log($value);
-                $totalBalance = $totalBalance + $value->balance;
-            }
-            Customer::where('id', $customerTransaction->customer_id)->update([
-                'balance' => $totalBalance
-            ]);
-            // create sale return customer transaction
-            $saleReturnCustomerTransaction = new SaleReturnCustomerTransaction();
-            $saleReturnCustomerTransaction->sale_return_id = $saleReturn->id;
-            $saleReturnCustomerTransaction->transaction_id = $newCustomerTransaction->id;
-            $saleReturnCustomerTransaction->save();
             SaleOrder::where('id', request('sale_order_id'))->update([
                 'return_status' => true
             ]);

@@ -166,7 +166,7 @@ class DashboardController extends Controller
             'stock' => $stock,
             'stockValue' => $stockValue,
             'expense' => $expenseAmount,
-            'cash' => $saleAmount - ($purchaseAmount + $expenseAmount)
+            'cash' => ($saleAmount - ($purchaseAmount + $expenseAmount)) - $toReceive
         ],200);
     }
 
