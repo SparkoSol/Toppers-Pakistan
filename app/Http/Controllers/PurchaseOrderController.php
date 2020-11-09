@@ -12,6 +12,7 @@ use App\Item;
 use App\ItemTransaction;
 use App\Variant;
 use Illuminate\Http\Request;
+use PDF;
 
 class PurchaseOrderController extends Controller
 {
@@ -109,11 +110,101 @@ class PurchaseOrderController extends Controller
             return PurchaseOrder::where('branch_id',$branchId)->where('supplier_id',$id)->where('return_status', null)->with('branch')->get();
         }
     }
-    public function getSummary($id) {
+    public function getSummary($id, $branchId) {
+        $month = date("m");
+        $year = date('Y');
+        $purchases = [];
+        switch ([$id, $branchId]) {
+            case [4,-1]:
+                $purchases = PurchaseOrder::All();
+                break;
+            case [0,-1]:
+                $purchases = PurchaseOrder::whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [1,-1]:
+                $purchases = PurchaseOrder::whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [2,-1]:
+                if($month >= 1 && $month <= 3)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-January-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-April-'.$year));
+                }
+                else  if($month >= 4 && $month <= 6)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-April-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-July-'.$year));
+                }
+                else  if($month >= 7 && $month <= 9)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-July-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-October-'.$year));
+                }
+                else  if($month >= 10 && $month <= 12)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-October-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
+                }
+                $purchases = PurchaseOrder::whereBetween('invoice_date', [$start_date, $end_date])->get();
+                break;
+            case [3,-1]:
+                $purchases = PurchaseOrder::whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [4, $branchId > 0]:
+                $purchases = PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [0,$branchId > 0]:
+                $purchases = PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [1,$branchId > 0]:
+                $purchases = PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [2,$branchId > 0]:
+                if($month >= 1 && $month <= 3)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-January-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-April-'.$year));
+                }
+                else  if($month >= 4 && $month <= 6)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-April-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-July-'.$year));
+                }
+                else  if($month >= 7 && $month <= 9)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-July-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-October-'.$year));
+                }
+                else  if($month >= 10 && $month <= 12)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-October-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
+                }
+                $purchases = PurchaseOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->get();
+                break;
+            case [3,$branchId > 0]:
+                $purchases = PurchaseOrder::where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->get();
+                break;
+        }
+        $unpaid = 0;
+        $paid = 0;
+        $total = 0;
+        foreach ($purchases as $purchase) {
+            $total = $total + $purchase->amount;
+            $unpaid = $unpaid + $purchase->balance_due;
+        }
+        $paid = $total - $unpaid;
+        return response()->json([
+            'total' => $total,
+            'paid' => $paid,
+            'unpaid' => $unpaid
+        ],200);
+    }
+    public function customSummary($id) {
         if ($id === '-1') {
-            $purchases = PurchaseOrder::All();
+            $purchases = PurchaseOrder::whereBetween('invoice_date', [request('from'), request('to')])->get();
         } else {
-            $purchases = PurchaseOrder::where('branch_id',$id)->get();
+            $purchases = PurchaseOrder::where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->get();
         }
         $unpaid = 0;
         $paid = 0;
@@ -468,5 +559,106 @@ class PurchaseOrderController extends Controller
                 'error' => 'Purchase Order Cannot Be Deleted'
             ],200);
         }
+    }
+    public function printReport($id, $branchId) {
+        $month = date("m");
+        $year = date('Y');
+        $to = null;
+        $from = null;
+        $purchases = [];
+        switch ([$id, $branchId]) {
+            case [4,-1]:
+                $purchases = PurchaseOrder::with('supplier')->with('branch')->get();
+                break;
+            case [0,-1]:
+                $purchases = PurchaseOrder::whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                break;
+            case [1,-1]:
+                $purchases = PurchaseOrder::whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                break;
+            case [2,-1]:
+                if($month >= 1 && $month <= 3)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-January-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-April-'.$year));
+                }
+                else  if($month >= 4 && $month <= 6)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-April-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-July-'.$year));
+                }
+                else  if($month >= 7 && $month <= 9)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-July-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-October-'.$year));
+                }
+                else  if($month >= 10 && $month <= 12)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-October-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
+                }
+                $purchases = PurchaseOrder::whereBetween('invoice_date', [$start_date, $end_date])->with('supplier')->with('branch')->get();
+                break;
+            case [3,-1]:
+                $purchases = PurchaseOrder::whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [5,-1]:
+                error_log('here');
+                if (request('from') != null && request('to') != null) {
+                    $to = request('to');
+                    $from = request('from');
+                    error_log('if here');
+                    $purchases = PurchaseOrder::whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
+                } else {
+                    error_log('else here');
+                    $purchases = PurchaseOrder::with('supplier')->with('branch')->get();
+                }
+                break;
+            case [4, $branchId > 0]:
+                $purchases = PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                break;
+            case [0,$branchId > 0]:
+                $purchases = PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                break;
+            case [1,$branchId > 0]:
+                $purchases = PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                break;
+            case [2,$branchId > 0]:
+                if($month >= 1 && $month <= 3)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-January-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-April-'.$year));
+                }
+                else  if($month >= 4 && $month <= 6)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-April-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-July-'.$year));
+                }
+                else  if($month >= 7 && $month <= 9)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-July-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-October-'.$year));
+                }
+                else  if($month >= 10 && $month <= 12)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-October-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
+                }
+                $purchases = PurchaseOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->with('supplier')->with('branch')->get();
+                break;
+            case [3,$branchId > 0]:
+                $purchases = PurchaseOrder::where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                break;
+            case [5,$branchId > 0]:
+                if (request('from') != null && request('to') != null) {
+                    $to = request('to');
+                    $from = request('from');
+                    $purchases = PurchaseOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
+                } else {
+                    $purchases = PurchaseOrder::where('branch_id',$branchId)->with('supplier')->with('branch')->get();
+                }
+                break;
+        }
+        return PDF::loadView('purchase-report-1', array('purchases' => $purchases, 'to' => $to, 'from' => $from))->setPaper('a4', 'portrait')->setWarnings(false)->stream('receipt.pdf');
     }
 }

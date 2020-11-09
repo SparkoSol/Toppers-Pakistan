@@ -8,6 +8,9 @@ use Illuminate\Http\Request;
 use JWTAuth;
 use Tymon\JWTAuth\Exceptions\JWTException;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\UserForgetMail;
+use App\UserForgotPassword;
 
 class UserController extends Controller
 {
@@ -63,7 +66,7 @@ class UserController extends Controller
     public function getAuthenticatedUser()
     {
         try {
-            if (! $user = JWTAuth::parseToken()->authenticate()) {
+            if (! $sendUser = JWTAuth::parseToken()->authenticate()) {
                 return response()->json(['User Not Found'], 404);
             }
         } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
@@ -73,6 +76,7 @@ class UserController extends Controller
         } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
             return response()->json(['token_absent'], $e->getStatusCode());
         }
+        $user = User::where('id',$sendUser->id)->with('branch')->first();
         return response()->json(compact('user'));
     }
     public function logout() {
@@ -122,5 +126,65 @@ class UserController extends Controller
             ]);
         }
         return $user;
+    }
+
+    public function forgotPassword(){
+        try {
+            error_log('1');
+            $user = User::where('email',request('email'))->first();
+            error_log('2');
+
+            if($user){
+                error_log('3');
+                $token = bcrypt($user->name);
+                $forgetPass = new UserForgotPassword();
+                $forgetPass->user_id = $user->id;
+                $forgetPass->token = $token;
+                error_log('4');
+
+                $forgetPass->save();
+                error_log('5');
+
+                $data = array(
+                    'id' =>  $forgetPass->id,
+                    'name' => $user->name,
+                    'token' => $token
+                );
+                error_log('6');
+                Mail::to($user->email)->send(
+                    new UserForgetMail($data,'Reset Password')
+                );
+                error_log('7');
+
+                return response()->json(['message' => 'Mail Sent'], 200);
+            }
+            return response()->json(['message' => 'User not found'], 401);
+        } catch (\Throwable $e) {
+            error_log($e);
+            return response()->json(['message' => 'Invalid Email'], 401);
+        }
+    }
+    public function getToken($id) {
+        return UserForgotPassword::where('id',$id)->first();
+    }
+    public function resetPassword(){
+        try {
+            $validatedData = request()->validate([
+                'password' => ['required']
+            ]);
+            $forgetPass = UserForgotPassword::where('id',request('id'))->first();
+            $user = User::where('id',$forgetPass->user_id)->first();
+            if($user){
+                $user->update([
+                    'password'  => bcrypt(request('password')),
+                ]);
+
+                UserForgotPassword::where('id',$forgetPass->id)->delete();
+                return "true";
+            }
+            return "false";
+        } catch(\Throwable $e) {
+            error_log($e);
+        }
     }
 }

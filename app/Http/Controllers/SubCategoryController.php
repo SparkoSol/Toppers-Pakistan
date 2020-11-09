@@ -123,7 +123,13 @@ class SubCategoryController extends Controller
             $obj->item = $item;
             $obj->variants = $variants;
             $obj->images = $images;
-            array_push($sendItems,$obj);
+            if (count($variants) <= 0) {
+                if ($item->stock > 0) {
+                    array_push($sendItems,$obj);
+                }
+            } else {
+                    array_push($sendItems,$obj);
+            }
         }
         return $sendItems;
     }

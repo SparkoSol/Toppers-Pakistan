@@ -109,6 +109,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/auth/sign-up','UserController@register');
     Route::post('/auth/change-password/{id}','UserController@changePassword');
     Route::post('/auth/update/{id}','UserController@update');
+    Route::post('/auth/user/forgotpassword','UserController@forgotPassword');
+    Route::get('/auth/user/token/{id}','UserController@getToken');
+    Route::post('auth/user/reset-password','UserController@resetPassword');
 
 //branch
     Route::get('/branch', 'RestaurantBranchController@apiIndex');
@@ -136,11 +139,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::delete('supplier/delete/{id}', 'SupplierController@delete');
 
 // Sale Order Routes
+    Route::get('/saleOrder/pdf/{id}','SaleOrderController@pdf');
     Route::get('/saleOrder','SaleOrderController@getSale');
-    Route::get('/saleOrder/summary/{id}','SaleOrderController@getSummary');
+    Route::get('/saleOrder/summary/{id}/{branchId}','SaleOrderController@getSummary');
     Route::get('/saleOrder/filterMonth','SaleOrderController@filterMonth');
     Route::get('/saleOrder/getInvoice','SaleOrderController@getInvoiceNumber');
     Route::post('/saleOrder/filter/{id}','SaleOrderController@customFilter');
+    Route::post('/saleOrder/summary/{id}','SaleOrderController@customSummary');
     Route::post('/saleOrder/store','SaleOrderController@store');
     Route::get('/saleOrder/filterYear','SaleOrderController@filterYear');
     Route::get('/saleOrder/filter/{id}/{branchId}','SaleOrderController@filter');
@@ -151,6 +156,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::delete('/saleOrder/delete/{id}', 'SaleOrderController@delete');
     Route::get('/saleOrder/paid/{id}', 'SaleOrderController@markAsPaid');
     Route::get('/saleOrder/complete/{id}', 'SaleOrderController@markAsComplete');
+    Route::get('/saleOrder/printReport/{id}/{branchId}', 'SaleOrderController@printReport');
 
 
 // Sale Order Items Route
@@ -235,7 +241,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 // Purchase Order Routes
     Route::get('/purchaseOrder','PurchaseOrderController@getPurchase');
-    Route::get('/purchaseOrder/summary/{id}','PurchaseOrderController@getSummary');
+    Route::get('/purchaseOrder/summary/{id}/{branchId}','PurchaseOrderController@getSummary');
+    Route::post('/purchaseOrder/summary/{id}','PurchaseOrderController@customSummary');
     Route::get('/purchaseOrder/filterMonth','PurchaseOrderController@filterMonth');
     Route::get('/purchaseOrder/getInvoice','PurchaseOrderController@getInvoiceNumber');
     Route::post('/purchaseOrder/filter/{id}','PurchaseOrderController@customFilter');
@@ -246,6 +253,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/purchaseOrder/update/{id}','PurchaseOrderController@update');
     Route::get('/purchaseOrder/supplier/{id}/{branchId}','PurchaseOrderController@getPurchaseBySupplier');
     Route::delete('/purchaseOrder/delete/{id}', 'PurchaseOrderController@delete');
+    Route::get('/purchaseOrder/printReport/{id}/{branchId}', 'PurchaseOrderController@printReport');
 
 
 // Purchase Order Items Route

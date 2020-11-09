@@ -14,6 +14,8 @@ use App\Variant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\MailSenderApi;
+use PDF;
+
 
 class SaleOrderController extends Controller
 {
@@ -460,11 +462,101 @@ class SaleOrderController extends Controller
             ],200);
         }
     }
-    public function getSummary($id) {
+    public function getSummary($id, $branchId) {
+        $month = date("m");
+        $year = date('Y');
+        $sales = [];
+        switch ([$id, $branchId]) {
+            case [4,-1]:
+                $sales = SaleOrder::All();
+                break;
+            case [0,-1]:
+                $sales = SaleOrder::whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [1,-1]:
+                $sales = SaleOrder::whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [2,-1]:
+                if($month >= 1 && $month <= 3)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-January-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-April-'.$year));
+                }
+                else  if($month >= 4 && $month <= 6)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-April-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-July-'.$year));
+                }
+                else  if($month >= 7 && $month <= 9)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-July-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-October-'.$year));
+                }
+                else  if($month >= 10 && $month <= 12)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-October-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
+                }
+                $sales = SaleOrder::whereBetween('invoice_date', [$start_date, $end_date])->get();
+                break;
+            case [3,-1]:
+                $sales = SaleOrder::whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [4, $branchId > 0]:
+                $sales = SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [0,$branchId > 0]:
+                $sales = SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [1,$branchId > 0]:
+                $sales = SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [2,$branchId > 0]:
+                if($month >= 1 && $month <= 3)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-January-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-April-'.$year));
+                }
+                else  if($month >= 4 && $month <= 6)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-April-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-July-'.$year));
+                }
+                else  if($month >= 7 && $month <= 9)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-July-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-October-'.$year));
+                }
+                else  if($month >= 10 && $month <= 12)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-October-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
+                }
+                $sales = SaleOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->get();
+                break;
+            case [3,$branchId > 0]:
+                $sales = SaleOrder::where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->get();
+                break;
+        }
+        $unpaid = 0;
+        $paid = 0;
+        $total = 0;
+        foreach ($sales as $sale) {
+            $total = $total + $sale->amount;
+            $unpaid = $unpaid + $sale->balance_due;
+        }
+        $paid = $total - $unpaid;
+        return response()->json([
+            'total' => $total,
+            'paid' => $paid,
+            'unpaid' => $unpaid
+        ],200);
+    }
+    public function customSummary($id) {
         if ($id === '-1') {
-            $sales = SaleOrder::All();
+            $sales = SaleOrder::whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
         } else {
-            $sales = SaleOrder::where('branch_id',$id)->get();
+            $sales = SaleOrder::where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
         }
         $unpaid = 0;
         $paid = 0;
@@ -554,5 +646,114 @@ class SaleOrderController extends Controller
         Mail::to($saleOrder->customer['email'])->send(
             new MailSenderApi($data,'Order Placed')
         );
+    }
+
+    public function pdf($id) {
+        $saleOrder = SaleOrder::where('id',$id)->with('customer')->with('address')->with('branch')->first();
+        $saleOrderItems = SaleOrderItem::where('sale_order_id',$id)->with('product')->with('variant')->get();
+
+        return PDF::loadView('sale-order-receipt', array('saleOrder' => $saleOrder, 'items' => $saleOrderItems))->setPaper(array(0,0,220,400), 'portrait')->setWarnings(false)->stream('receipt.pdf');
+    }
+
+    public function printReport($id, $branchId) {
+        $month = date("m");
+        $year = date('Y');
+        $to = null;
+        $from = null;
+        $sales = [];
+        switch ([$id, $branchId]) {
+            case [4,-1]:
+                $sales = SaleOrder::with('customer')->with('branch')->get();
+                break;
+            case [0,-1]:
+                $sales = SaleOrder::whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                break;
+            case [1,-1]:
+                $sales = SaleOrder::whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                break;
+            case [2,-1]:
+                if($month >= 1 && $month <= 3)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-January-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-April-'.$year));
+                }
+                else  if($month >= 4 && $month <= 6)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-April-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-July-'.$year));
+                }
+                else  if($month >= 7 && $month <= 9)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-July-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-October-'.$year));
+                }
+                else  if($month >= 10 && $month <= 12)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-October-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
+                }
+                $sales = SaleOrder::whereBetween('invoice_date', [$start_date, $end_date])->with('customer')->with('branch')->get();
+                break;
+            case [3,-1]:
+                $sales = SaleOrder::whereYear('invoice_date', date('Y'))->get();
+                break;
+            case [5,-1]:
+                error_log('here');
+                if (request('from') != null && request('to') != null) {
+                    $to = request('to');
+                    $from = request('from');
+                    error_log('if here');
+                    $sales = SaleOrder::whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+                } else {
+                    error_log('else here');
+                    $sales = SaleOrder::with('customer')->with('branch')->get();
+                }
+                break;
+            case [4, $branchId > 0]:
+                $sales = SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                break;
+            case [0,$branchId > 0]:
+                $sales = SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                break;
+            case [1,$branchId > 0]:
+                $sales = SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                break;
+            case [2,$branchId > 0]:
+                if($month >= 1 && $month <= 3)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-January-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-April-'.$year));
+                }
+                else  if($month >= 4 && $month <= 6)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-April-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-July-'.$year));
+                }
+                else  if($month >= 7 && $month <= 9)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-July-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-October-'.$year));
+                }
+                else  if($month >= 10 && $month <= 12)
+                {
+                    $start_date = date("Y-m-d",strtotime('1-October-'.$year));
+                    $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
+                }
+                $sales = SaleOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->with('customer')->with('branch')->get();
+                break;
+            case [3,$branchId > 0]:
+                $sales = SaleOrder::where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                break;
+            case [5,$branchId > 0]:
+                if (request('from') != null && request('to') != null) {
+                    $to = request('to');
+                    $from = request('from');
+                    $sales = SaleOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+                } else {
+                    $sales = SaleOrder::where('branch_id',$branchId)->with('customer')->with('branch')->get();
+                }
+                break;
+        }
+        return PDF::loadView('sale-report-1', array('sales' => $sales, 'to' => $to, 'from' => $from))->setPaper('a4', 'portrait')->setWarnings(false)->stream('receipt.pdf');
     }
 }
