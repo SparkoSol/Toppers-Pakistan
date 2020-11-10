@@ -651,8 +651,19 @@ class SaleOrderController extends Controller
     public function pdf($id) {
         $saleOrder = SaleOrder::where('id',$id)->with('customer')->with('address')->with('branch')->first();
         $saleOrderItems = SaleOrderItem::where('sale_order_id',$id)->with('product')->with('variant')->get();
-
-        return PDF::loadView('sale-order-receipt', array('saleOrder' => $saleOrder, 'items' => $saleOrderItems))->setPaper(array(0,0,220,400), 'portrait')->setWarnings(false)->stream('receipt.pdf');
+        $size = 0;
+        foreach ($saleOrderItems as $saleOrderItem) {
+            if ($saleOrderItem->variant != null) {
+                $size += 50;
+            } else {
+                $size += 15;
+            }
+        }
+        if ($saleOrder->customer != null) {
+            $size += 50;
+        }
+        error_log($size);
+        return PDF::loadView('sale-order-receipt', array('saleOrder' => $saleOrder, 'items' => $saleOrderItems))->setPaper(array(0,0,220,300 + $size), 'portrait')->setWarnings(false)->stream('receipt.pdf');
     }
 
     public function printReport($id, $branchId) {

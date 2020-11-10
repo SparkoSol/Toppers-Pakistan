@@ -288,6 +288,8 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 // Dashboard
     Route::get('dashboard/{id}', 'DashboardController@dashboardSummary');
+    Route::get('profitLoss/{id}', 'DashboardController@profitLoss');
+    Route::get('profitLoss/print/{id}', 'DashboardController@profitLossPrint');
     Route::get('/', 'DashboardController@home');
 //});
 
