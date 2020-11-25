@@ -38,6 +38,7 @@ class RestaurantBranchController extends Controller
         $branch->address = request('address');
         $branch->phone = request('phone');
         $branch->restaurant_id = request('restaurant');
+        $branch->delivery = request('delivery');
         $imageName = time().'.'.request()->image->getClientOriginalExtension();
         request()->image->move(public_path('images/branch'), $imageName);
         $branch->image = $imageName;
@@ -52,6 +53,7 @@ class RestaurantBranchController extends Controller
         $address = request('address');
         $phone = request('phone');
         $restaurant_id = request('restaurant');
+        $delivery = request('delivery');
         if(request('image') != null){
             $branch = RestaurantBranch::where('id',$id)->first();
             if (file_exists(public_path('images/branch/').$branch->image)) {
@@ -65,6 +67,7 @@ class RestaurantBranchController extends Controller
                          'email'  => $email,
                          'address'=> $address,
                          'phone'  => $phone,
+                         'delivery' => $delivery,
                          'image' => $imageName
                          ]);
         }
@@ -74,7 +77,8 @@ class RestaurantBranchController extends Controller
                      'restaurant_id' => $restaurant_id,
                      'email'  => $email,
                      'address'=> $address,
-                     'phone'  => $phone
+                     'phone'  => $phone,
+                     'delivery' => $delivery
                      ]);
         }
         return $branch;

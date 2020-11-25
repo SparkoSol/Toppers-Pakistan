@@ -128,6 +128,7 @@ class SaleOrderController extends Controller
         $sale->invoice_id = request('invoiceNumber');
         $sale->customer_id = request('customer');
         $sale->branch_id = request('branchId');
+        $sale->delivery_fee = request('delivery_fee');
         if (request('address_id') != null)
             $sale->address_id = request('address_id');
         if(request('instruction') != null)
@@ -322,6 +323,8 @@ class SaleOrderController extends Controller
             SaleOrderItem::where('id', $saleOrderItem->id)->delete();
         }
     // update sale order data
+        if (request('delivery_fee') != null)
+            $delivery_fee = request('delivery_fee');
         if (request('billingAddress') !== 'null')
             $billing_address = request('billingAddress');
         $amount = request('amount');
@@ -335,7 +338,8 @@ class SaleOrderController extends Controller
             'billing_address' => $billing_address,
             'amount' => $amount,
             'balance_due' => $balance_due,
-            'discount' => $discount
+            'discount' => $discount,
+            'delivery_fee' => $delivery_fee
         ]);
         $sale = SaleOrder::where('id', $id)->first();
 
@@ -662,7 +666,6 @@ class SaleOrderController extends Controller
         if ($saleOrder->customer != null) {
             $size += 50;
         }
-        error_log($size);
         return PDF::loadView('sale-order-receipt', array('saleOrder' => $saleOrder, 'items' => $saleOrderItems))->setPaper(array(0,0,220,300 + $size), 'portrait')->setWarnings(false)->stream('receipt.pdf');
     }
 

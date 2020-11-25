@@ -31,6 +31,7 @@ class CreateSaleOrdersTable extends Migration
             $table->boolean('delivery')->default(false);
             $table->string('discount')->nullable();
             $table->string('instructions')->nullable()->default("No Instructions");
+            $table->integer('delivery_fee');
             $table->string('balance_due')->nullable();
             $table->string('return_status')->nullable();
             $table->timestamps();

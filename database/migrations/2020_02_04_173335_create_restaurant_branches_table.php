@@ -23,6 +23,7 @@ class CreateRestaurantBranchesTable extends Migration
             $table->string('address');
             $table->string('phone');
             $table->mediumText('image');
+            $table->integer('delivery');
             $table->rememberToken();
             $table->timestamps();
         });

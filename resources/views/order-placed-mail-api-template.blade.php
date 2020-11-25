@@ -198,7 +198,7 @@ a[x-apple-data-detectors] {
                           <td style="padding:0;Margin:0"><h4 style="Margin:0;line-height:200%;mso-line-height-rule:exactly;font-family:arial, 'helvetica neue', helvetica, sans-serif;color:#333333">Delivery Charges:</h4></td>
                           <td style="padding:0;Margin:0;color:#FF0000"><strong>
                             @if($data['order']['delivery'] > 0)
-                                Rs. 50
+                                Rs. {{ $data['order']['delivery_fee'] }}
                             @else
                                 Rs. 0.0
                             @endif

@@ -7,13 +7,13 @@
         $date=date_create($saleOrder['invoice_date']);
         $price = 0;
         for ($x = 0; $x < count($items); $x++) {
-            $price += $items[$x]['price'];
+            $price += ($items[$x]['qty'] * $items[$x]['price']);
         }
      ?>
     <body>
         <div class="ticket">
             <div class="centered">
-                <img style="width:100px" src="./images/ToppersPakistanLogo.png" alt="Logo">
+                <img style="width:100px" src="./images/branch/{{ $saleOrder['branch']['image'] }}" alt="Logo">
             </div>
             <p class="centered">
                 Order Receipt
@@ -62,7 +62,7 @@
                     <td style="border-top:none"><h2 style="color:#333333">Delivery Charges:</h2></td>
                     <td style="border-top:none;">
                         @if($saleOrder['delivery'] > 0)
-                            Rs. 50
+                            Rs. {{ $saleOrder['delivery_fee'] }}
                         @else
                             Rs. 0.0
                         @endif
