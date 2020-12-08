@@ -23,7 +23,7 @@ class ItemController extends Controller
         if($id <= 0) {
             return Item::with('restaurant')->with('subCategory')->with('branch')->with('unit')->get();
         } else {
-            return Item::where('branch_id', $id)->with('restaurant')->with('subCategory')->with('branch')->with('unit')->get();
+            return Item::where('branch_id', $id)->orWhere('branch_id', null)->with('restaurant')->with('subCategory')->with('branch')->with('unit')->get();
         }
     }
     public function store() {
@@ -32,7 +32,9 @@ class ItemController extends Controller
                 $item = new Item();
                 $item->restaurant_id = 1;
                 $item->subCategory_id = request('product')['subCategory_id'];
-                $item->branch_id = request('product')['branch_id'];
+                if (request('product')['branch_id'] !== 0) {
+                    $item->branch_id = request('product')['branch_id'];
+                }
                 $item->unit_id = request('product')['unit_id'];
                 $item->name = request('product')['name'];
                 $item->sale_price = request('product')['sale_price'];
@@ -54,7 +56,9 @@ class ItemController extends Controller
                 $item = new Item();
                 $item->restaurant_id = 1;
                 $item->subCategory_id = request('product')['subCategory_id'];
-                $item->branch_id = request('product')['branch_id'];
+                if (request('product')['branch_id'] !== 0) {
+                    $item->branch_id = request('product')['branch_id'];
+                }
                 $item->unit_id = request('product')['unit_id'];
                 $item->name = request('product')['name'];
                 $item->description = request('product')['description'];

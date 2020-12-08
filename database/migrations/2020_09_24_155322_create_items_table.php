@@ -21,7 +21,7 @@ class CreateItemsTable extends Migration
             $table->foreign('restaurant_id')->references('id')->on('restaurants');
             $table->integer('subCategory_id')->unsigned();
             $table->foreign('subCategory_id')->references('id')->on('sub_categories');
-            $table->integer('branch_id')->unsigned();
+            $table->integer('branch_id')->unsigned()->nullable();
             $table->foreign('branch_id')->references('id')->on('restaurant_branches');
             $table->integer('unit_id')->unsigned();
             $table->foreign('unit_id')->references('id')->on('units');

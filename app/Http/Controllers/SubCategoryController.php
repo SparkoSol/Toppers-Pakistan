@@ -112,7 +112,7 @@ class SubCategoryController extends Controller
         error_log($branch);
         $sendItems = [];
         if ($branch !== 'null') {
-            $items = Item::where('subCategory_id',$id)->where('branch_id',$branch)->with('unit')->get();
+            $items = Item::where('subCategory_id',$id)->where('branch_id',$branch)->orWhere('branch_id', null)->with('unit')->get();
         } else {
             $items = Item::where('subCategory_id',$id)->with('unit')->get();
         }
