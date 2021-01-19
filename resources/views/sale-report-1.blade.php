@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-       <title>Toppers Sale Report</title>
+       <title>Apna Store Sale Report</title>
     </head>
     <?php
 //        $date=date_create($saleOrder['invoice_date']);
@@ -12,7 +12,11 @@
      ?>
     <body>
         <div style="width:100%">
-            <p style="text-align: center;"><img src="https://toppers-pakistan.web.app/_nuxt/img/ToppersPakistanLogo.31cd84b.png" alt="" width="178" height="130" /></p>
+            @if ($branch > 0)
+                <p style="text-align: center;"><img src="./images/branch/{{ $sales[0]['branch']['image'] }}" alt="" width="178" height="130" /></p>
+            @else
+                <p style="text-align: center;"><img src="./images/ApnaPos.jpeg" alt="" width="178" height="130" /></p>
+            @endif
             <h2 style="text-align: center;"><strong>Sale Report</strong></h2>
             @if($from !== null && $to !== null)
                 <p><strong>Duration: From {{ $from }} to {{ $to }}</strong></p>
@@ -30,6 +34,18 @@
                     <td style="background-color: #efefef; text-align: center;">Discount</td>
                     <td style="background-color: #efefef; text-align: center;">Balance</td>
                     <td style="background-color: #efefef; text-align: center;">Status</td>
+                </tr>
+                <tr>
+                    <td style="color:white;text-align: center;">D</td>
+                    <td style="color:white;text-align: center;">I</td>
+                    <td style="color:white;text-align: center;">P</td>
+                    <td style="color:white;text-align: center;">B</td>
+                    <td style="color:white;text-align: center;">O</td>
+                    <td style="color:white;text-align: center;">P</td>
+                    <td style="color:white;text-align: center;">T</td>
+                    <td style="color:white;text-align: center;">D</td>
+                    <td style="color:white;text-align: center;">B</td>
+                    <td style="color:white;text-align: center;">S</td>
                 </tr>
                  @for ($i = 0; $i < count($sales); $i++)
                  <tr style="text-align:center;border-bottom:1px solid rgba(0,0,0,0.4);">

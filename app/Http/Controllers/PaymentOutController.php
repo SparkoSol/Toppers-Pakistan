@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\PaymentOut;
+use App\PurchaseOrder;
 use App\SupplierTransaction;
 use App\Supplier;
 use App\PaymentOutSupplierTransaction;
@@ -20,16 +21,16 @@ class PaymentOutController extends Controller
     }
     public function getPaymentOut($id) {
         if($id === '-1') {
-            return PaymentOut::with('supplier')->with('branch')->get();
+            return PaymentOut::orderBy('id','desc')->with('supplier')->with('branch')->get();
         } else {
-            return PaymentOut::where('branch_id',$id)->with('branch')->with('supplier')->get();
+            return PaymentOut::orderBy('id','desc')->where('branch_id',$id)->with('branch')->with('supplier')->get();
         }
     }
     public function customFilter($id) {
         if($id === '-1') {
-            return PaymentOut::whereBetween('receipt_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
+            return PaymentOut::orderBy('id','desc')->whereBetween('receipt_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
         } else {
-            return PaymentOut::where('branch_id',$id)->whereBetween('receipt_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
+            return PaymentOut::orderBy('id','desc')->where('branch_id',$id)->whereBetween('receipt_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
         }
     }
     public function getPaymentOutById($id) {
@@ -44,6 +45,8 @@ class PaymentOutController extends Controller
         $paymentOut->receipt_date = request('receipt_date');
         $paymentOut->received = request('received');
         $paymentOut->description = request('description');
+        if (request('order_id') != null)
+            $paymentOut->purchase_order_id = request('order_id');
         $paymentOut->save();
         error_log($paymentOut);
         // create payment in transaction in supplier
@@ -66,7 +69,7 @@ class PaymentOutController extends Controller
 
         error_log($paymentOutTransaction);
         // update supplier balance
-        $supplierTransactions = SupplierTransaction::where('supplier_id', request('supplier_id'))->get();
+        $supplierTransactions = SupplierTransaction::where('supplier_id', request('supplier_id'))->where('active',1)->get();
         $totalBalance = 0;
         foreach($supplierTransactions as $value) {
             $totalBalance = $totalBalance + $value->balance;
@@ -76,6 +79,16 @@ class PaymentOutController extends Controller
             'balance' => $supplierBalance
         ]);
         error_log($supplierBalance);
+        if (request('order_id') != null) {
+            $order = PurchaseOrder::where('id', request('order_id'))->first();
+            if ($order->balance_due < request('received')) {
+                $balance = 0;
+            }
+            $balance = $order->balance_due - request('received');
+            PurchaseOrder::where('id',request('order_id'))->update([
+                'balance_due' => $balance
+            ]);
+        }
         return $paymentOut;
     }
     public function update($id) {
@@ -93,7 +106,7 @@ class PaymentOutController extends Controller
             'balance' => request('received')
         ]);
         // update customer balance
-        $supplierTransactions = SupplierTransaction::where('supplier_id', $supplierTransaction->supplier_id)->get();
+        $supplierTransactions = SupplierTransaction::where('supplier_id', $supplierTransaction->supplier_id)->where('active',1)->get();
         $totalBalance = 0;
         foreach($supplierTransactions as $value) {
             $totalBalance = $totalBalance + $value->balance;

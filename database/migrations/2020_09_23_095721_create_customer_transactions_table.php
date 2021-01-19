@@ -24,6 +24,7 @@ class CreateCustomerTransactionsTable extends Migration
              $table->integer('action_type');
              $table->date('date');
              $table->string('status')->nullable();
+             $table->boolean('active')->default(true);
              $table->timestamps();
         });
     }

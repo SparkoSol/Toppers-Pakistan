@@ -3,7 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Customer;
+use App\CustomerTransaction;
 use App\Order;
+use App\PaymentIn;
+use App\PaymentInCustomerTransaction;
+use App\SaleOrder;
+use App\SaleOrderCustomerTransaction;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -33,9 +38,34 @@ class CustomerController extends Controller
         }
     }
 
-    public function customers() {
+    public function customers($id) {
         try {
-            return Customer::all();
+            if ($id > 0) {
+                $customers = Customer::all();
+                $balance = 0;
+                foreach ($customers as $customer) {
+                    $saleOrders = SaleOrder::whereNull('return_status')->where('customer_id', $customer->id)->where('branch_id',$id)->get();
+                    foreach ($saleOrders as $saleOrder) {
+                        $saleOrderCustomerTransactions = SaleOrderCustomerTransaction::where('sale_order_id',$saleOrder->id)->get();
+                        foreach ($saleOrderCustomerTransactions as $saleOrderCustomerTransaction) {
+                            $transaction = CustomerTransaction::where('id',$saleOrderCustomerTransaction->transaction_id)->first();
+                            $balance = $balance + $transaction->balance;
+                        }
+                    }
+                    $paymentIns = PaymentIn::where('customer_id',$customer->id)->where('branch_id',$id)->get();
+                    foreach ($paymentIns as $paymentIn) {
+                        $paymentInCustomerTransactions = PaymentInCustomerTransaction::where('payment_in_id',$paymentIn->id)->get();
+                        foreach ($paymentInCustomerTransactions as $paymentInCustomerTransaction) {
+                            $transaction = CustomerTransaction::where('id',$paymentInCustomerTransaction->transaction_id)->first();
+                            $balance = $balance + $transaction->balance;
+                        }
+                    }
+                    $customer->balance = $balance;
+                }
+                return $customers;
+            } else {
+                return Customer::all();
+            }
         } catch (Exception $e) {
             error_log($e);
         }
@@ -120,16 +150,20 @@ class CustomerController extends Controller
 	}
 
 	public function store() {
-        request()->validate([
-            'name' => ['required', 'string'],
-        ]);
-    	$customer = new Customer();
-    	$customer->email =    request('email');
-        $customer->name =     request('name');
-        $customer->phone =    request('phone');
-    	$customer->password = bcrypt(request('password'));
-    	$customer->save();
-    	return $customer;
+	    try {
+            request()->validate([
+                'name' => ['required', 'string'],
+            ]);
+            $customer = new Customer();
+            $customer->email =    request('email');
+            $customer->name =     request('name');
+            $customer->phone =    request('phone');
+            $customer->password = bcrypt(request('password'));
+            $customer->save();
+            return $customer;
+	    } catch (\Throwable $e) {
+    	    return response()->json(['message' => $e], 401);
+	    }
 	}
 	public function update($id) {
         $customer = Customer::where('id',$id)->update([

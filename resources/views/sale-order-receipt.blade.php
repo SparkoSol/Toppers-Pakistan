@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-       <title>Toppers Order Invoice</title>
+       <title>Apna Store Invoice</title>
     </head>
      <?php
         $date=date_create($saleOrder['invoice_date']);
@@ -26,7 +26,14 @@
                 @endif
                 @if($saleOrder['address'] !== null)
                     <p>Customer Contact: {{ $saleOrder['address']['mobile'] }}</p>
-                    <p>Customer Address: {{ $saleOrder['address']['description'] }}, {{ $saleOrder['address']['house'] }}, {{ $saleOrder['address']['street'] }}, {{ $saleOrder['address']['area'] }}, {{ $saleOrder['address']['city'] }}</p>
+                    <p>
+                      Customer Address:
+                       {{ $saleOrder['address']['description'] ? $saleOrder['address']['description'].',' : ''  }}
+                       {{ $saleOrder['address']['house'] ? $saleOrder['address']['house'].',' : '' }}
+                       {{ $saleOrder['address']['street'] ? $saleOrder['address']['street'].',' : '' }}
+                       {{ $saleOrder['address']['area'] ? $saleOrder['address']['area'].',' : '' }}
+                       {{ $saleOrder['address']['city'] ? $saleOrder['address']['city'].'' : '' }}
+                    </p>
                 @endif
             </div>
             <table style="width:100%" class="table">
@@ -88,7 +95,7 @@
                  </tr>
              </table>
             <p class="centered">Thanks for your purchase!</p>
-            <p class="centered">Designed & Maintained By Sparko Tech!</p>
+            <p class="centered">Designed & Maintained By Sparko Sol!</p>
                     </div>
     </body>
 </html>

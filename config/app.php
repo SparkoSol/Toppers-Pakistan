@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Toppers Pakistan'),
+    'name' => env('APP_NAME', 'Apna Pos'),
 
     /*
     |--------------------------------------------------------------------------

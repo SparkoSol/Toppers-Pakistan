@@ -17,13 +17,13 @@ class CreateAddressesTable extends Migration
             $table->increments('id');
             $table->integer('customer_id')->unsigned();
             $table->foreign('customer_id')->references('id')->on('customers');
-            $table->string('description');
-            $table->string('house');
-            $table->string('street');
-            $table->string('area');
-            $table->string('city');
+            $table->string('description')->nullable();
+            $table->string('house')->nullable();
+            $table->string('street')->nullable();
+            $table->string('area')->nullable();
+            $table->string('city')->nullable();
             $table->boolean('active')->default(true);
-            $table->string('mobile');
+            $table->string('mobile')->nullable();
             $table->timestamps();
         });
     }

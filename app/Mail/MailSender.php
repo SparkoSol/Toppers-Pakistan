@@ -32,6 +32,6 @@ class MailSender extends Mailable
      */
     public function build()
     {
-        return $this->from('info@toppers-mart.com')->subject($this->subject)->view('order-placed-mail-template')->with('data',$this->data);
+        return $this->from('info@apnapos.pk','Apna Store')->subject($this->subject)->view('order-placed-mail-template')->with('data',$this->data);
     }
 }

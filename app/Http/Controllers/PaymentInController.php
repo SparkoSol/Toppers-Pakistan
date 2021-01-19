@@ -6,6 +6,7 @@ use App\PaymentIn;
 use App\CustomerTransaction;
 use App\Customer;
 use App\PaymentInCustomerTransaction;
+use App\SaleOrder;
 use Illuminate\Http\Request;
 
 class PaymentInController extends Controller
@@ -20,22 +21,23 @@ class PaymentInController extends Controller
     }
     public function getPaymentIn($id) {
         if($id === '-1') {
-            return PaymentIn::with('customer')->with('branch')->get();
+            return PaymentIn::orderBy('id','desc')->with('customer')->with('branch')->get();
         } else {
-            return PaymentIn::where('branch_id',$id)->with('branch')->with('customer')->get();
+            return PaymentIn::orderBy('id','desc')->where('branch_id',$id)->with('branch')->with('customer')->get();
         }
     }
     public function customFilter($id) {
         if($id === '-1') {
-            return PaymentIn::whereBetween('receipt_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+            return PaymentIn::orderBy('id','desc')->whereBetween('receipt_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
         } else {
-            return PaymentIn::where('branch_id',$id)->whereBetween('receipt_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+            return PaymentIn::orderBy('id','desc')->where('branch_id',$id)->whereBetween('receipt_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
         }
     }
     public function getPaymentInById($id) {
         return PaymentIn::where('id',$id)->with('customer')->first();
     }
     public function store() {
+        $balance = 0;
         // create payment in
         $paymentIn = new PaymentIn();
         $paymentIn->customer_id = request('customer_id');
@@ -44,6 +46,8 @@ class PaymentInController extends Controller
         $paymentIn->receipt_date = request('receipt_date');
         $paymentIn->received = request('received');
         $paymentIn->description = request('description');
+        if (request('order_id') != null)
+        $paymentIn->sale_order_id = request('order_id');
         $paymentIn->save();
         error_log($paymentIn);
         // create payment in transaction in customer
@@ -66,7 +70,7 @@ class PaymentInController extends Controller
 
         error_log($paymentInTransaction);
         // update customer balance
-        $customerTransactions = CustomerTransaction::where('customer_id', request('customer_id'))->get();
+        $customerTransactions = CustomerTransaction::where('customer_id', request('customer_id'))->where('active', 1)->get();
         $totalBalance = 0;
         foreach($customerTransactions as $value) {
             $totalBalance = $totalBalance + $value->balance;
@@ -76,6 +80,16 @@ class PaymentInController extends Controller
             'balance' => $customerBalance
         ]);
         error_log($customerBalance);
+        if (request('order_id') != null) {
+            $order = SaleOrder::where('id', request('order_id'))->first();
+            if ($order->balance_due < request('received')) {
+                $balance = 0;
+            }
+            $balance = $order->balance_due - request('received');
+            SaleOrder::where('id',request('order_id'))->update([
+                'balance_due' => $balance
+            ]);
+        }
         return $paymentIn;
     }
     public function update($id) {
@@ -93,7 +107,7 @@ class PaymentInController extends Controller
             'balance' => - request('received')
         ]);
         // update customer balance
-        $customerTransactions = CustomerTransaction::where('customer_id', $customerTransaction->customer_id)->get();
+        $customerTransactions = CustomerTransaction::where('customer_id', $customerTransaction->customer_id)->where('active', 1)->get();
         $totalBalance = 0;
         foreach($customerTransactions as $value) {
             $totalBalance = $totalBalance + $value->balance;

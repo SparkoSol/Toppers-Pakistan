@@ -3,6 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Supplier;
+use App\PurchaseOrder;
+use App\PurchaseOrderSupplierTransaction;
+use App\PaymentOut;
+use App\PaymentOutSupplierTransaction;
+use App\SupplierTransaction;
 use Illuminate\Http\Request;
 use GuzzleHttp\Client;
 use App\Http\Controllers\Controller;
@@ -21,9 +26,38 @@ class SupplierController extends Controller
         //
     }
 
-    public function apiIndex()
+    public function apiIndex($id)
     {
-        return Supplier::all();
+        try {
+            if ($id > 0) {
+                $suppliers = Supplier::all();
+                $balance = 0;
+                foreach ($suppliers as $supplier) {
+                    $purchaseOrders = PurchaseOrder::whereNull('return_status')->where('supplier_id', $supplier->id)->where('branch_id',$id)->get();
+                    foreach ($purchaseOrders as $purchaseOrder) {
+                        $purchaseOrderSupplierTransactions = PurchaseOrderSupplierTransaction::where('purchase_order_id',$purchaseOrder->id)->get();
+                        foreach ($purchaseOrderSupplierTransactions as $purchaseOrderSupplierTransaction) {
+                            $transaction = SupplierTransaction::where('id',$purchaseOrderSupplierTransaction->transaction_id)->first();
+                            $balance = $balance + $transaction->balance;
+                        }
+                    }
+                    $paymentOuts = PaymentOut::where('supplier_id',$supplier->id)->where('branch_id',$id)->get();
+                    foreach ($paymentOuts as $paymentOut) {
+                        $paymentOutSupplierTransactions = PaymentOutSupplierTransaction::where('payment_out_id',$paymentOut->id)->get();
+                        foreach ($paymentOutSupplierTransactions as $paymentOutSupplierTransaction) {
+                            $transaction = SupplierTransaction::where('id',$paymentOutSupplierTransaction->transaction_id)->first();
+                            $balance = $balance + $transaction->balance;
+                        }
+                    }
+                    $supplier->balance = $balance;
+                }
+                return $suppliers;
+            } else {
+                return Supplier::all();
+            }
+        } catch (Exception $e) {
+            error_log($e);
+        }
     }
 
     public function apiIndexById($id)

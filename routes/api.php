@@ -122,7 +122,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::delete('branch/delete/{id}','RestaurantBranchController@deleteBranch');
 
 // Admin Customer Controls
-    Route::get('/customer', 'CustomerController@customers');
+    Route::get('/customer/branch/{id}', 'CustomerController@customers');
     Route::get('/customer/{id}', 'CustomerController@apiIndexById');
     Route::get('customer/orders/{id}', 'CustomerController@getOrders');
     Route::get('customer/transactions/{id}','CustomerTransactionController@getByCustomer');
@@ -131,7 +131,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::delete('customer/delete/{id}', 'CustomerController@delete');
 
 // Admin Supplier Controls
-    Route::get('/supplier', 'SupplierController@apiIndex');
+    Route::get('/supplier/branch/{id}', 'SupplierController@apiIndex');
     Route::get('/supplier/{id}', 'SupplierController@apiIndexById');
     Route::get('supplier/transactions/{id}','SupplierTransactionController@getBySupplier');
     Route::post('supplier/store', 'SupplierController@store');
@@ -153,6 +153,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::post('/saleOrder/update/{id}','SaleOrderController@update');
     Route::get('/saleOrder/branch/{branchId}','SaleOrderController@getSaleByBranch');
     Route::get('saleOrder/customer/{id}/{branchId}', 'SaleOrderController@getSalesByCustomer');
+    Route::get('saleOrder/customer/partial/{id}/{branchId}', 'SaleOrderController@getPartialOrderByCustomer');
     Route::delete('/saleOrder/delete/{id}', 'SaleOrderController@delete');
     Route::get('/saleOrder/paid/{id}', 'SaleOrderController@markAsPaid');
     Route::get('/saleOrder/complete/{id}', 'SaleOrderController@markAsComplete');
@@ -252,8 +253,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::get('/purchaseOrder/{id}','PurchaseOrderController@getPurchaseById');
     Route::post('/purchaseOrder/update/{id}','PurchaseOrderController@update');
     Route::get('/purchaseOrder/supplier/{id}/{branchId}','PurchaseOrderController@getPurchaseBySupplier');
+    Route::get('/purchaseOrder/supplier/partial/{id}/{branchId}', 'PurchaseOrderController@getPartialOrderBySupplier');
     Route::delete('/purchaseOrder/delete/{id}', 'PurchaseOrderController@delete');
     Route::get('/purchaseOrder/printReport/{id}/{branchId}', 'PurchaseOrderController@printReport');
+    Route::get('/purchaseOrder/branch/{branchId}','PurchaseOrderController@getPurchaseByBranch');
+
 
 
 // Purchase Order Items Route
@@ -290,9 +294,28 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     Route::get('dashboard/{id}', 'DashboardController@dashboardSummary');
     Route::get('profitLoss/{id}', 'DashboardController@profitLoss');
     Route::get('profitLoss/print/{id}', 'DashboardController@profitLossPrint');
+    Route::post('profitLossRange/{id}', 'DashboardController@profitLossRange');
     Route::get('/', 'DashboardController@home');
 //});
 
 
     Route::post('auth/log-in', 'UserController@authenticate');
     Route::post('auth/log-out','UserController@logout');
+// User Route
+    Route::get('user/{id}', 'UserController@getUserById');
+
+
+// Filter Dashboard
+    Route::get('filterSale/{id}/{branchId}', 'DashboardController@filterSale');
+    Route::get('filterPurchase/{id}/{branchId}', 'DashboardController@filterPurchase');
+    Route::get('filterToPay/{id}/{branchId}', 'DashboardController@filterToPay');
+    Route::get('filterToRecieve/{id}/{branchId}', 'DashboardController@filterToRecieve');
+    Route::get('filterExpense/{id}/{branchId}', 'DashboardController@filterExpense');
+
+// Day Close
+    Route::post('dayClose/store/{id}', 'DayCloseController@insert');
+    Route::get('dayClose/{id}', 'DayCloseController@get');
+
+// Month Close
+    Route::post('monthClose/store/{id}', 'MonthCloseController@insert');
+    Route::get('monthClose/{id}', 'MonthCloseController@get');

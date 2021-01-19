@@ -30,6 +30,7 @@ class CreateSaleOrdersTable extends Migration
             $table->string('origin')->default('Web Order');
             $table->boolean('delivery')->default(false);
             $table->string('discount')->nullable();
+            $table->string('extra')->nullable();
             $table->string('instructions')->nullable()->default("No Instructions");
             $table->integer('delivery_fee');
             $table->string('balance_due')->nullable();

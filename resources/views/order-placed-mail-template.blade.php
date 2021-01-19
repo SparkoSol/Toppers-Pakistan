@@ -1,8 +1,8 @@
 
-<?php  
+<?php
 if($data['delivery']) {
     $delivery = 50.0;
-}  
+}
 else{
     $delivery = 0.0;
 }
@@ -11,7 +11,7 @@ else{
 <p>Hi, {{$data['name']}}</p>
 <p>Your Order is placed at {{$data['branch']}}.</p>
 <p>Your food will be delivered soon.</p>
-<p>We appreciate you ordering food from Toppers Pakistan.</p>
+<p>We appreciate you ordering food from Apna Pos.</p>
 <p>Have a nice day.</p>
 <table style="width:100%" class="table">
     <tr>
@@ -23,7 +23,7 @@ else{
     <tr>
         <th>{{$i+1}}</th>
         <th>{{$data['items'][$i]->product->name}}</th>
-        <th>{{$data['items'][$i]->quantity}}</th>        
+        <th>{{$data['items'][$i]->quantity}}</th>
     </tr>
     @endfor
 </table>

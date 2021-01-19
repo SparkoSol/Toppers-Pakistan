@@ -7,11 +7,11 @@
 <div class="d-flex justify-content-center">
     <div style="width:70%;padding:50px;" id="content">
         <div class="d-flex justify-content-center" style="padding:10px;">
-            <img width="150" height="150" src="/images/ToppersPakistanLogo.png" alt="">
+            <img width="150" height="150" src="/images/ApnaPos.png" alt="">
         </div>
         <div class="page-header row">
             <div class="col-md-9"align="center" id="title">
-                <h1>Toppers Pakistan</h1>
+                <h1>Apna Pos</h1>
                 <h3>{{$order->branch->name}}</h3>
             </div>
             <div class="col-md-3">

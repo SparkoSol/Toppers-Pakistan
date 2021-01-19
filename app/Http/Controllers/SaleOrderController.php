@@ -28,18 +28,18 @@ class SaleOrderController extends Controller
         }
     }
     public function getSale() {
-        return SaleOrder::with('customer')->with('branch')->with('address')->get();
+        return SaleOrder::orderBy('id','desc')->with('customer')->with('branch')->with('address')->get();
     }
     public function filter($id,$branchId) {
         $month = date("m");
         $year = date('Y');
         switch ([$id, $branchId]) {
             case [4,-1]:
-                return SaleOrder::with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->with('customer')->with('branch')->get();
             case [0,-1]:
-                return SaleOrder::whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
             case [1,-1]:
-                return SaleOrder::whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
             case [2,-1]:
                 if($month >= 1 && $month <= 3)
                 {
@@ -61,15 +61,15 @@ class SaleOrderController extends Controller
                     $start_date = date("Y-m-d",strtotime('1-October-'.$year));
                     $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
                 }
-                return SaleOrder::whereBetween('invoice_date', [$start_date, $end_date])->with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->whereBetween('invoice_date', [$start_date, $end_date])->with('customer')->with('branch')->get();
             case [3,-1]:
-                return SaleOrder::whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
             case [4, $branchId > 0]:
-                return SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
             case [0,$branchId > 0]:
-                return SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
             case [1,$branchId > 0]:
-                return SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
             case [2,$branchId > 0]:
                 if($month >= 1 && $month <= 3)
                 {
@@ -91,16 +91,16 @@ class SaleOrderController extends Controller
                     $start_date = date("Y-m-d",strtotime('1-October-'.$year));
                     $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
                 }
-                return SaleOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->with('customer')->with('branch')->get();
             case [3,$branchId > 0]:
-                return SaleOrder::where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
         }
     }
     public function customFilter($id) {
         if ($id === '-1') {
-            return SaleOrder::whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+            return SaleOrder::orderBy('id','desc')->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
         } else {
-            return SaleOrder::where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+            return SaleOrder::orderBy('id','desc')->where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
         }
     }
     public function getSaleById($id) {
@@ -108,9 +108,9 @@ class SaleOrderController extends Controller
     }
     public function getSaleByBranch($branchId) {
         if ($branchId === '-1') {
-            return SaleOrder::where('return_status', null)->with('branch')->get();
+            return SaleOrder::orderBy('id','desc')->where('return_status', null)->with('branch')->get();
         } else {
-            return SaleOrder::where('branch_id',$branchId)->where('return_status', null)->with('branch')->get();
+            return SaleOrder::orderBy('id','desc')->where('branch_id',$branchId)->where('return_status', null)->with('branch')->get();
         }
     }
     public function getSalesByCustomer($id,$branchId) {
@@ -145,6 +145,8 @@ class SaleOrderController extends Controller
         $sale->balance_due = request('balance');
         if (request('discount') !== 'null')
         $sale->discount = request('discount');
+        if (request('extra') !== 'null')
+            $sale->extra = request('extra');
         $sale->save();
         $qty = 0;
         if ($sale->balance_due) {
@@ -251,7 +253,7 @@ class SaleOrderController extends Controller
             $customerTransaction->date = request('invoiceDate');
             $customerTransaction->status = $status;
             $customerTransaction->save();
-            $customerTransactions = CustomerTransaction::where('customer_id', request('customer'))->get();
+            $customerTransactions = CustomerTransaction::where('customer_id', request('customer'))->where('active', 1)->get();
             $totalAmount = 0;
             $totalBalance = 0;
             foreach($customerTransactions as $value) {
@@ -444,7 +446,7 @@ class SaleOrderController extends Controller
                 'balance' => request('balance'),
                 'status' =>$status
             ]);
-            $customerTransactions = CustomerTransaction::where('customer_id', request('customer'))->get();
+            $customerTransactions = CustomerTransaction::where('customer_id', request('customer'))->where('active', 1)->get();
             $totalAmount = 0;
             $totalBalance = 0;
             foreach($customerTransactions as $value) {
@@ -472,13 +474,13 @@ class SaleOrderController extends Controller
         $sales = [];
         switch ([$id, $branchId]) {
             case [4,-1]:
-                $sales = SaleOrder::All();
+                $sales = SaleOrder::whereNull('return_status')->get();
                 break;
             case [0,-1]:
-                $sales = SaleOrder::whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
+                $sales = SaleOrder::whereNull('return_status')->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
                 break;
             case [1,-1]:
-                $sales = SaleOrder::whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->get();
+                $sales = SaleOrder::whereNull('return_status')->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->get();
                 break;
             case [2,-1]:
                 if($month >= 1 && $month <= 3)
@@ -501,19 +503,19 @@ class SaleOrderController extends Controller
                     $start_date = date("Y-m-d",strtotime('1-October-'.$year));
                     $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
                 }
-                $sales = SaleOrder::whereBetween('invoice_date', [$start_date, $end_date])->get();
+                $sales = SaleOrder::whereNull('return_status')->whereBetween('invoice_date', [$start_date, $end_date])->get();
                 break;
             case [3,-1]:
-                $sales = SaleOrder::whereYear('invoice_date', date('Y'))->get();
+                $sales = SaleOrder::whereNull('return_status')->whereYear('invoice_date', date('Y'))->get();
                 break;
             case [4, $branchId > 0]:
-                $sales = SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
+                $sales = SaleOrder::whereNull('return_status')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
                 break;
             case [0,$branchId > 0]:
-                $sales = SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
+                $sales = SaleOrder::whereNull('return_status')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->get();
                 break;
             case [1,$branchId > 0]:
-                $sales = SaleOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->get();
+                $sales = SaleOrder::whereNull('return_status')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->get();
                 break;
             case [2,$branchId > 0]:
                 if($month >= 1 && $month <= 3)
@@ -536,10 +538,10 @@ class SaleOrderController extends Controller
                     $start_date = date("Y-m-d",strtotime('1-October-'.$year));
                     $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
                 }
-                $sales = SaleOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->get();
+                $sales = SaleOrder::whereNull('return_status')->where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->get();
                 break;
             case [3,$branchId > 0]:
-                $sales = SaleOrder::where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->get();
+                $sales = SaleOrder::whereNull('return_status')->where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->get();
                 break;
         }
         $unpaid = 0;
@@ -558,9 +560,9 @@ class SaleOrderController extends Controller
     }
     public function customSummary($id) {
         if ($id === '-1') {
-            $sales = SaleOrder::whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+            $sales = SaleOrder::whereNull('return_status')->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
         } else {
-            $sales = SaleOrder::where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
+            $sales = SaleOrder::whereNull('return_status')->where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('branch')->get();
         }
         $unpaid = 0;
         $paid = 0;
@@ -612,7 +614,7 @@ class SaleOrderController extends Controller
                 'status' => 'Paid'
             ]);
             // recalculate customer balance
-            $customerTransactions = CustomerTransaction::where('customer_id', $saleOrder->customer_id)->get();
+            $customerTransactions = CustomerTransaction::where('customer_id', $saleOrder->customer_id)->where('active', 1)->get();
             $totalAmount = 0;
             $totalBalance = 0;
             foreach($customerTransactions as $value) {
@@ -651,7 +653,6 @@ class SaleOrderController extends Controller
             new MailSenderApi($data,'Order Placed')
         );
     }
-
     public function pdf($id) {
         $saleOrder = SaleOrder::where('id',$id)->with('customer')->with('address')->with('branch')->first();
         $saleOrderItems = SaleOrderItem::where('sale_order_id',$id)->with('product')->with('variant')->get();
@@ -660,15 +661,14 @@ class SaleOrderController extends Controller
             if ($saleOrderItem->variant != null) {
                 $size += 50;
             } else {
-                $size += 15;
+                $size += 20;
             }
         }
         if ($saleOrder->customer != null) {
             $size += 50;
         }
-        return PDF::loadView('sale-order-receipt', array('saleOrder' => $saleOrder, 'items' => $saleOrderItems))->setPaper(array(0,0,220,300 + $size), 'portrait')->setWarnings(false)->stream('receipt.pdf');
+        return PDF::loadView('sale-order-receipt', array('saleOrder' => $saleOrder, 'items' => $saleOrderItems))->setPaper(array(0,0,220,350 + $size), 'portrait')->setWarnings(false)->stream('receipt.pdf');
     }
-
     public function printReport($id, $branchId) {
         $month = date("m");
         $year = date('Y');
@@ -768,6 +768,13 @@ class SaleOrderController extends Controller
                 }
                 break;
         }
-        return PDF::loadView('sale-report-1', array('sales' => $sales, 'to' => $to, 'from' => $from))->setPaper('a4', 'portrait')->setWarnings(false)->stream('receipt.pdf');
+        return PDF::loadView('sale-report-1', array('sales' => $sales, 'to' => $to, 'from' => $from, 'branch' => $branchId))->setPaper('a4', 'portrait')->setWarnings(false)->stream('receipt.pdf');
+    }
+    public function getPartialOrderByCustomer($id,$branchId) {
+        if ($branchId === '-1') {
+            return SaleOrder::where('customer_id',$id)->where('return_status', null)->where('balance_due','>','0')->get();
+        } else {
+            return SaleOrder::where('customer_id',$id)->where('branch_id',$branchId)->where('balance_due','>','0')->where('return_status', null)->get();
+        }
     }
 }

@@ -54,7 +54,7 @@ class OrderController extends Controller
     {
         if(Auth::user()->type == "Main Admin"){
             $completedOrders = Order::where('status','Complete')->get();
-        
+
         }
         else{
             $completedOrders = Order::where('status','Complete')->where('branch_id',Auth::user()->branch_id)->get();
@@ -132,12 +132,12 @@ class OrderController extends Controller
 
     }
 
-    public function addCustomerInfo(){    
+    public function addCustomerInfo(){
         session_start();
         if(isset($_SESSION['customer'])){
             $customer = $_SESSION['customer'];
             $address= $_SESSION['address'];
-    
+
             return view('punch-order',compact('customer','address'));
         }else{
             $_SESSION['items'] = array();
@@ -194,11 +194,11 @@ class OrderController extends Controller
                 return view('punch-order',compact('customer','address'));
 			}
         }
-        
+
         $_SESSION['ins'] = request('ins');
         $customer = new Customer();
         if(request('name') == null){
-            $customer->name = "Toppers Pakistan";    
+            $customer->name = "Apna Store";
         }else{
             $customer->name = request('name');
         }
@@ -288,7 +288,7 @@ class OrderController extends Controller
         if (strpos($_SESSION['customer']->email, 'toppersPakistan@') !== false) {
             session_unset();
             session_destroy();
-            return redirect('home');            
+            return redirect('home');
             // dd(strpos('toppersPakistan@02:47:21pm', 'toppersPakistan@'));
         }else{
             $data = array(
@@ -299,7 +299,7 @@ class OrderController extends Controller
                 'items' => $_SESSION['items'],
                 'orderId' => $order->id
             );
-    
+
             Mail::to($_SESSION['customer']->email)->send(
                 new MailSender($data,'Order Placed')
             );

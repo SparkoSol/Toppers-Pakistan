@@ -4,7 +4,7 @@
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-    <title>Toppers Pakistan Invoice</title>
+    <title>Apna Pos Invoice</title>
     <style>
         @media print {
             @page {
@@ -33,12 +33,12 @@
 <script>
     function closePrintView() {
         document.location.href = '/invoice/{{$order->id}}';
-    }    
+    }
 </script>
 <body onload="window.print();setTimeout('closePrintView()', 300);">
-    <h1 id="logo" class="text-center"><img width="150" height="150" src="/images/ToppersPakistanLogo.png" alt='Logo'></h1>
+    <h1 id="logo" class="text-center"><img width="150" height="150" src="/images/ApnaPos.png" alt='Logo'></h1>
     <div id='printContainer'>
-        <h1 class="text-center">Toppers Pakistan</h1>
+        <h1 class="text-center">Apna Pos</h1>
         <h3 class="text-center">{{$order->branch->name}}</h3>
         <h2 class="text-center">Order # {{$order->id}}</h2>
         @if($order->delivery)
@@ -114,4 +114,4 @@
         </div>
     </div>
 </body>
-</html> 
+</html>

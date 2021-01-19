@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-       <title>Toppers Purchase Report</title>
+       <title>Apna Store Purchase Report</title>
     </head>
     <?php
         $total = 0;
@@ -11,13 +11,17 @@
      ?>
     <body>
         <div style="width:100%">
-            <p style="text-align: center;"><img src="https://toppers-pakistan.web.app/_nuxt/img/ToppersPakistanLogo.31cd84b.png" alt="" width="178" height="130" /></p>
+            @if ($branch > 0)
+                <p style="text-align: center;"><img src="./images/branch/{{ $purchases[0]['branch']['image'] }}" alt="" width="178" height="130" /></p>
+            @else
+                <p style="text-align: center;"><img src="./images/ApnaPos.jpeg" alt="" width="178" height="130" /></p>
+            @endif
             <h2 style="text-align: center;"><strong>Purchase Report</strong></h2>
             @if($from !== null && $to !== null)
                 <p><strong>Duration: From {{ $from }} to {{ $to }}</strong></p>
             @endif
             <table style="height: 90px; margin-left: auto; margin-right: auto;width:100%;" cellspacing=0>
-            <tbody>
+            <thead>
                 <tr>
                     <td style="background-color: #efefef; text-align: center;">DATE</td>
                     <td style="background-color: #efefef; text-align: center;">INVOICE N0.</td>
@@ -30,6 +34,20 @@
                     <td style="background-color: #efefef; text-align: center;">Balance</td>
                     <td style="background-color: #efefef; text-align: center;">Status</td>
                 </tr>
+                <tr>
+                    <td style="color:white;text-align: center;">D</td>
+                    <td style="color:white;text-align: center;">I</td>
+                    <td style="color:white;text-align: center;">P</td>
+                    <td style="color:white;text-align: center;">B</td>
+                    <td style="color:white;text-align: center;">O</td>
+                    <td style="color:white;text-align: center;">P</td>
+                    <td style="color:white;text-align: center;">T</td>
+                    <td style="color:white;text-align: center;">D</td>
+                    <td style="color:white;text-align: center;">B</td>
+                    <td style="color:white;text-align: center;">S</td>
+                </tr>
+            </thead>
+            <tbody>
                  @for ($i = 0; $i < count($purchases); $i++)
                  <tr style="text-align:center;border-bottom:1px solid rgba(0,0,0,0.4);">
                     <td style="text-align: center;border-bottom:1px solid rgba(0,0,0,0.4)">{{ date_format(date_create($purchases[$i]['invoice_date']),"Y/m/d") }}</td>

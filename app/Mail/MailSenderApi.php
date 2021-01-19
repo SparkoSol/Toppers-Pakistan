@@ -39,7 +39,7 @@ class MailSenderApi extends Mailable
             $product[$i] = Product::where('id',$this->data['items'][$i]['product_id'])->first();
         }
         return $this
-            ->from('info@toppers-mart.com')
+            ->from('info@apnapos.pk','Apna Store')
             ->subject($this->subject)
             ->view('order-placed-mail-api-template',compact('product'))
             ->with('data',$this->data);

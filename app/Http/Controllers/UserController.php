@@ -84,19 +84,27 @@ class UserController extends Controller
     }
 
     public function changePassword($id){
-        request()->validate([
-            'oldPassword' => ['required', 'string'],
-            'newPassword' => ['required', 'string'],
-    	]);
-  	    $user = User::where('id',$id)->first();
-        if(Hash::check(request('oldPassword'),$user->password)){
-        	$user->update([
-   				'password'  => bcrypt(request('newPassword')),
-   			]);
-   			return $user;
-    	}else{
-            return response()->json(['message' => 'Invalid Credentials'], 401);
-    	}
+        if (request('oldPassword') !== null) {
+            request()->validate([
+                'oldPassword' => ['required', 'string'],
+                'newPassword' => ['required', 'string'],
+            ]);
+            $user = User::where('id',$id)->first();
+            if(Hash::check(request('oldPassword'),$user->password)){
+                $user->update([
+                    'password'  => bcrypt(request('newPassword')),
+                ]);
+                return $user;
+            }else{
+                return response()->json(['message' => 'Invalid Credentials'], 401);
+            }
+        } else {
+            $user = User::where('id',$id)->first();
+            $user->update([
+                'password'  => bcrypt(request('newPassword')),
+            ]);
+            return $user;
+        }
     }
     public function update($id) {
         $user = User::where('id',$id)->first();
@@ -186,5 +194,8 @@ class UserController extends Controller
         } catch(\Throwable $e) {
             error_log($e);
         }
+    }
+    public function getUserById($id) {
+        return User::where('id',$id)->first();
     }
 }

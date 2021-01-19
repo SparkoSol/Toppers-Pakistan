@@ -28,9 +28,9 @@ class SaleReturnController extends Controller
     }
     public function getSaleReturn($id) {
         if($id === '-1') {
-            return SaleReturn::with('customer')->with('SaleOrder.branch')->get();
+            return SaleReturn::orderBy('id','desc')->with('customer')->with('SaleOrder.branch')->get();
         } else {
-            return SaleReturn::where('branch_id',$id)->with('customer')->with('SaleOrder.branch')->get();
+            return SaleReturn::orderBy('id','desc')->where('branch_id',$id)->with('customer')->with('SaleOrder.branch')->get();
         }
     }
     public function getSaleReturnById($id) {
@@ -38,14 +38,20 @@ class SaleReturnController extends Controller
     }
     public function customFilter($id) {
         if($id === '-1') {
-            return SaleReturn::whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('SaleOrder.branch')->get();
+            return SaleReturn::orderBy('id','desc')->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('SaleOrder.branch')->get();
         } else {
-            return SaleReturn::where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('SaleOrder.branch')->get();
+            return SaleReturn::orderBy('id','desc')->where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('customer')->with('SaleOrder.branch')->get();
         }
     }
     public function store() {
         try {
             $saleOrder = SaleOrder::where('id', request('sale_order_id'))->first();
+            $saleOrderCustomerTransaction = SaleOrderCustomerTransaction::where('sale_order_id',request('sale_order_id'))->first();
+            if ($saleOrderCustomerTransaction) {
+                CustomerTransaction::where('id', $saleOrderCustomerTransaction->transaction_id)->update([
+                    'active' => false
+                ]);
+            }
             // create sale return
             $saleReturn = new SaleReturn();
             $saleReturn->invoice_id = request('invoiceId');
@@ -145,7 +151,7 @@ class SaleReturnController extends Controller
                     $newCustomerTransaction->status = 'Paid';
                 }
                 $newCustomerTransaction->save();
-                $customerTransactions = CustomerTransaction::where('customer_id', $customerTransaction->customer_id)->get();
+                $customerTransactions = CustomerTransaction::where('customer_id', $customerTransaction->customer_id)->where('active', 1)->get();
                 $totalBalance = 0;
                 foreach($customerTransactions as $value) {
                     error_log($value);
@@ -200,7 +206,7 @@ class SaleReturnController extends Controller
                 'status' => $status,
                 'balance' => - request('balance')
             ]);
-            $customerTransactions = CustomerTransaction::where('customer_id', $customerTransaction->customer_id)->get();
+            $customerTransactions = CustomerTransaction::where('customer_id', $customerTransaction->customer_id)->where('active', 1)->get();
             $totalBalance = 0;
             foreach($customerTransactions as $value) {
                 error_log($value);

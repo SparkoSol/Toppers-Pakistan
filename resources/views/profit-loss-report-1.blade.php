@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-       <title>Toppers Profit & Loss Report</title>
+       <title>Apna Store Profit & Loss Report</title>
     </head>
     <?php
         $gross = $sale - $creditNote - $purchase + $debitNote - $openingStock + $closingStock;
@@ -9,7 +9,11 @@
     ?>
     <body>
         <div style="width:100%">
-            <p style="text-align: center;"><img src="https://toppers-pakistan.web.app/_nuxt/img/ToppersPakistanLogo.31cd84b.png" alt="" width="178" height="130" /></p>
+            @if ($branch_id > 0)
+                <p style="text-align: center;"><img src="./images/branch/{{ $branch['image'] }}" alt="" width="178" height="130" /></p>
+            @else
+                <p style="text-align: center;"><img src="./images/ApnaPos.jpeg" alt="" width="178" height="130" /></p>
+            @endif
             <h2 style="text-align: center;"><strong>Profit Loss Report</strong></h2>
             <table style="width: 100%" cellspacing="0">
                 <thead style="background-color: #efefef">

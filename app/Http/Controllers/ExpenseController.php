@@ -14,7 +14,7 @@ class ExpenseController extends Controller
         return Expense::where('id',$id)->with('branch')->first();
     }
     public function getByBranch($id) {
-        return Expense::where('branch_id',$id)->get();
+        return Expense::where('branch_id',$id)->with('branch')->get();
     }
     public function store() {
        error_log(request('balance'));

@@ -28,9 +28,9 @@ class PurchaseReturnController extends Controller
     }
     public function getPurchaseReturn($id) {
         if($id === '-1') {
-            return PurchaseReturn::with('supplier')->with('PurchaseOrder.branch')->get();
+            return PurchaseReturn::orderBy('id','desc')->with('supplier')->with('PurchaseOrder.branch')->get();
         } else {
-            return PurchaseReturn::where('branch_id',$id)->with('supplier')->with('PurchaseOrder.branch')->get();
+            return PurchaseReturn::orderBy('id','desc')->where('branch_id',$id)->with('supplier')->with('PurchaseOrder.branch')->get();
         }
     }
     public function getPurchaseReturnById($id) {
@@ -38,14 +38,18 @@ class PurchaseReturnController extends Controller
     }
     public function customFilter($id) {
         if($id === '-1') {
-            return PurchaseReturn::whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('PurchaseOrder.branch')->get();
+            return PurchaseReturn::orderBy('id','desc')->whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('PurchaseOrder.branch')->get();
         } else {
-            return PurchaseReturn::where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('PurchaseOrder.branch')->get();
+            return PurchaseReturn::orderBy('id','desc')->where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('PurchaseOrder.branch')->get();
         }
     }
     public function store() {
         try {
             $purchaseOrder = PurchaseOrder::where('id', request('purchase_order_id'))->first();
+            $purchaseOrderSupplierTransaction = PurchaseOrderSupplierTransaction::where('purchase_order_id',request('purchase_order_id'))->first();
+            SupplierTransaction::where('id', $purchaseOrderSupplierTransaction->transaction_id)->update([
+                'active' => false
+            ]);
             // create purchase return
             $purchaseReturn = new PurchaseReturn();
             $purchaseReturn->invoice_id = request('invoiceId');
@@ -144,7 +148,7 @@ class PurchaseReturnController extends Controller
                 $newSupplierTransaction->status = 'Paid';
             }
             $newSupplierTransaction->save();
-            $supplierTransactions = SupplierTransaction::where('supplier_id', $supplierTransaction->supplier_id)->get();
+            $supplierTransactions = SupplierTransaction::where('supplier_id', $supplierTransaction->supplier_id)->where('active',1)->get();
             $totalBalance = 0;
             foreach($supplierTransactions as $value) {
                 error_log($value);
@@ -198,7 +202,7 @@ class PurchaseReturnController extends Controller
                 'status' => $status,
                 'balance' => request('balance')
             ]);
-            $supplierTransactions = SupplierTransaction::where('supplier_id', $supplierTransaction->supplier_id)->get();
+            $supplierTransactions = SupplierTransaction::where('supplier_id', $supplierTransaction->supplier_id)->where('active',1)->get();
             $totalBalance = 0;
             foreach($supplierTransactions as $value) {
                 error_log($value);

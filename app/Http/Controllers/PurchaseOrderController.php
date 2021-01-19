@@ -25,18 +25,18 @@ class PurchaseOrderController extends Controller
         }
     }
     public function getPurchase() {
-        return PurchaseOrder::with('supplier')->with('branch')->get();
+        return PurchaseOrder::orderBy('id','desc')->with('supplier')->with('branch')->get();
     }
     public function filter($id,$branchId) {
         $month = date("m");
         $year = date('Y');
         switch ([$id, $branchId]) {
             case [4,-1]:
-                return PurchaseOrder::with('supplier')->with('branch')->get();
+                return PurchaseOrder::orderBy('id','desc')->with('supplier')->with('branch')->get();
             case [0,-1]:
-                return PurchaseOrder::whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                return PurchaseOrder::orderBy('id','desc')->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [1,-1]:
-                return PurchaseOrder::whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                return PurchaseOrder::orderBy('id','desc')->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [2,-1]:
                 if($month >= 1 && $month <= 3)
                 {
@@ -58,15 +58,15 @@ class PurchaseOrderController extends Controller
                     $start_date = date("Y-m-d",strtotime('1-October-'.$year));
                     $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
                 }
-                return PurchaseOrder::whereBetween('invoice_date', [$start_date, $end_date])->with('supplier')->with('branch')->get();
+                return PurchaseOrder::orderBy('id','desc')->whereBetween('invoice_date', [$start_date, $end_date])->with('supplier')->with('branch')->get();
             case [3,-1]:
-                return PurchaseOrder::whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                return PurchaseOrder::orderBy('id','desc')->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [4, $branchId > 0]:
-                return PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                return PurchaseOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [0,$branchId > 0]:
-                return PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                return PurchaseOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [1,$branchId > 0]:
-                return PurchaseOrder::where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                return PurchaseOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m') - 1)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
             case [2,$branchId > 0]:
                 if($month >= 1 && $month <= 3)
                 {
@@ -88,16 +88,16 @@ class PurchaseOrderController extends Controller
                     $start_date = date("Y-m-d",strtotime('1-October-'.$year));
                     $end_date = date("Y-m-d",strtotime('1-January-'.($year+1)));
                 }
-                return PurchaseOrder::where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->with('supplier')->with('branch')->get();
+                return PurchaseOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereBetween('invoice_date', [$start_date, $end_date])->with('supplier')->with('branch')->get();
             case [3,$branchId > 0]:
-                return PurchaseOrder::where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
+                return PurchaseOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereYear('invoice_date', date('Y'))->with('supplier')->with('branch')->get();
         }
     }
     public function customFilter($id) {
         if ($id === '-1') {
-            return PurchaseOrder::whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
+            return PurchaseOrder::orderBy('id','desc')->whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
         } else {
-            return PurchaseOrder::where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
+            return PurchaseOrder::orderBy('id','desc')->where('branch_id',$id)->whereBetween('invoice_date', [request('from'), request('to')])->with('supplier')->with('branch')->get();
         }
     }
     public function getPurchaseById($id) {
@@ -108,6 +108,13 @@ class PurchaseOrderController extends Controller
             return PurchaseOrder::where('supplier_id',$id)->where('return_status', null)->with('branch')->get();
         } else {
             return PurchaseOrder::where('branch_id',$branchId)->where('supplier_id',$id)->where('return_status', null)->with('branch')->get();
+        }
+    }
+    public function getPurchaseByBranch($branchId) {
+        if ($branchId === '-1') {
+            return PurchaseOrder::orderBy('id','desc')->where('return_status', null)->with('branch')->get();
+        } else {
+            return PurchaseOrder::orderBy('id','desc')->where('branch_id',$branchId)->where('return_status', null)->with('branch')->get();
         }
     }
     public function getSummary($id, $branchId) {
@@ -271,9 +278,9 @@ class PurchaseOrderController extends Controller
             $productTransaction->variant_id = $purchaseItem->variant_id;
             $productTransaction->quantity = $purchaseItem->qty;
             if($purchaseItem->variant_id !== null) {
-                $productTransaction->price =  $item['item']['variant']['purchase_price'];
+                $productTransaction->price =  $item['item']['price'];
             } else {
-                $productTransaction->price =  $product->purchase_price;
+                $productTransaction->price =  $item['item']['price'];
             }
             $productTransaction->type = 6;
             $productTransaction->date = $purchase->invoice_date;
@@ -340,7 +347,7 @@ class PurchaseOrderController extends Controller
             $supplierTransaction->date = request('invoiceDate');
             $supplierTransaction->status = $status;
             $supplierTransaction->save();
-            $supplierTransactions = SupplierTransaction::where('supplier_id', request('supplier'))->get();
+            $supplierTransactions = SupplierTransaction::where('supplier_id', request('supplier'))->where('active',1)->get();
             $totalAmount = 0;
             $totalBalance = 0;
             foreach($supplierTransactions as $value) {
@@ -460,9 +467,9 @@ class PurchaseOrderController extends Controller
             $productTransaction->variant_id = $purchaseItem->variant_id;
             $productTransaction->quantity = $purchaseItem->qty;
             if($purchaseItem->variant_id !== null) {
-                $productTransaction->price =  $item['item']['variant']['purchase_price'];
+                $productTransaction->price =  $item['item']['price'];
             } else {
-                $productTransaction->price =  $product->purchase_price;
+                $productTransaction->price =  $item['item']['price'];
             }
             $productTransaction->type = 6;
             $productTransaction->date = $purchase->invoice_date;
@@ -526,7 +533,7 @@ class PurchaseOrderController extends Controller
                 'balance' => - request('balance'),
                 'status' =>$status
             ]);
-            $supplierTransactions = SupplierTransaction::where('supplier_id', request('supplier'))->get();
+            $supplierTransactions = SupplierTransaction::where('supplier_id', request('supplier'))->where('active',1)->get();
             $totalAmount = 0;
             $totalBalance = 0;
             foreach($supplierTransactions as $value) {
@@ -659,6 +666,13 @@ class PurchaseOrderController extends Controller
                 }
                 break;
         }
-        return PDF::loadView('purchase-report-1', array('purchases' => $purchases, 'to' => $to, 'from' => $from))->setPaper('a4', 'portrait')->setWarnings(false)->stream('receipt.pdf');
+        return PDF::loadView('purchase-report-1', array('purchases' => $purchases, 'to' => $to, 'from' => $from, 'branch' => $branchId))->setPaper('a4', 'portrait')->setWarnings(false)->stream('receipt.pdf');
+    }
+    public function getPartialOrderBySupplier($id,$branchId) {
+        if ($branchId === '-1') {
+            return PurchaseOrder::where('supplier_id',$id)->where('return_status', null)->where('balance_due','>','0')->get();
+        } else {
+            return PurchaseOrder::where('supplier_id',$id)->where('branch_id',$branchId)->where('balance_due','>','0')->where('return_status', null)->get();
+        }
     }
 }

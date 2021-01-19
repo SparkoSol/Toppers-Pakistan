@@ -7,7 +7,7 @@
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>Toppers Pakistan</title>
+    <title>Apna Pos</title>
 
     <!-- Scripts -->
     <script src="{{ asset('js/app.js') }}" defer></script>
@@ -29,8 +29,8 @@
             <div class="container">
                 <a class="navbar-brand">
                     <div class="d-flex justify-content-center">
-                        <img style="margin-right:15px" width="50" height="50" src="/images/ToppersPakistanLogo.png" alt="">
-                        <h3 style="padding-top:15px">Toppers Pakistan</h3>
+                        <img style="margin-right:15px" width="50" height="50" src="/images/ApnaPos.png" alt="">
+                        <h3 style="padding-top:15px">Apna Pos</h3>
                     </div>
                 </a>
             </div>
