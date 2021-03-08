@@ -23,7 +23,7 @@ class CreateDayClosesTable extends Migration
             $table->string('stockValue');
             $table->string('toPay');
             $table->string('toReceive');
-            $table->string('date');
+            $table->dateTime('date');
             $table->integer('branch_id')->unsigned()->nullable();
             $table->foreign('branch_id')->references('id')->on('restaurant_branches');
             $table->timestamps();

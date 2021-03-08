@@ -65,7 +65,7 @@ class SaleOrderController extends Controller
             case [3,-1]:
                 return SaleOrder::orderBy('id','desc')->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
             case [4, $branchId > 0]:
-                return SaleOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
+                return SaleOrder::orderBy('id','desc')->where('branch_id',$branchId)->with('customer')->with('branch')->get();
             case [0,$branchId > 0]:
                 return SaleOrder::orderBy('id','desc')->where('branch_id',$branchId)->whereMonth('invoice_date', date('m'))->whereYear('invoice_date', date('Y'))->with('customer')->with('branch')->get();
             case [1,$branchId > 0]:
@@ -324,6 +324,10 @@ class SaleOrderController extends Controller
         foreach ($saleOrderItems as $saleOrderItem) {
             SaleOrderItem::where('id', $saleOrderItem->id)->delete();
         }
+            $delivery_fee = 0;
+            $billing_address = null;
+            $balance_due  = null;
+            $discount = null;
     // update sale order data
         if (request('delivery_fee') != null)
             $delivery_fee = request('delivery_fee');
@@ -665,7 +669,7 @@ class SaleOrderController extends Controller
             }
         }
         if ($saleOrder->customer != null) {
-            $size += 50;
+            $size += 70;
         }
         return PDF::loadView('sale-order-receipt', array('saleOrder' => $saleOrder, 'items' => $saleOrderItems))->setPaper(array(0,0,220,350 + $size), 'portrait')->setWarnings(false)->stream('receipt.pdf');
     }

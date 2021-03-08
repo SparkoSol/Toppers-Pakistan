@@ -22,7 +22,7 @@ class CreateSaleReturnsTable extends Migration
             $table->foreign('branch_id')->references('id')->on('restaurant_branches');
             $table->integer('sale_order_id')->unsigned();
             $table->foreign('sale_order_id')->references('id')->on('sale_orders');
-            $table->string('invoice_date');
+            $table->dateTime('invoice_date');
             $table->string('payment_type');
             $table->string('total');
             $table->string('paid')->nullable();

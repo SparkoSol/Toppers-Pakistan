@@ -13,10 +13,10 @@
     <body>
         <div class="ticket">
             <div class="centered">
-                <img style="width:100px" src="./images/branch/{{ $saleOrder['branch']['image'] }}" alt="Logo">
+                <img style="width:100px; height: 80px" src="./images/branch/{{ $saleOrder['branch']['image'] }}" alt="Logo">
             </div>
             <p class="centered">
-                Order Receipt
+                Order Receipt # {{ $saleOrder['invoice_id'] }}
                 <br>{{ $saleOrder['branch']['name'] }}
                 <br>{{ $saleOrder['branch']['address'] }}
             </p>
@@ -36,6 +36,7 @@
                     </p>
                 @endif
             </div>
+            <p class="text-center"><strong>Date - Time:</strong>{{Date("Y/m/d h:i a", strtotime($saleOrder['created_at']))}}</p>
             <table style="width:100%" class="table">
                  <tr style="text-align:center;">
                      <td style="font-weight:700;">Sr#</td>
@@ -94,6 +95,7 @@
                     <td style="border-top:none;">Rs. {{ $saleOrder['amount'] }}</td>
                  </tr>
              </table>
+            <p class="text-center"><strong>Print Date - Time:</strong>{{ Date("Y/m/d h:i a") }}</p>
             <p class="centered">Thanks for your purchase!</p>
             <p class="centered">Designed & Maintained By Sparko Sol!</p>
                     </div>

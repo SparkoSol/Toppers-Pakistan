@@ -15,7 +15,7 @@ class CreateSaleOrdersTable extends Migration
     {
         Schema::create('sale_orders', function (Blueprint $table) {
             $table->increments('id');
-            $table->string('invoice_date');
+            $table->dateTime('invoice_date');
             $table->string('invoice_id');
             $table->integer('customer_id')->unsigned()->nullable();
             $table->foreign('customer_id')->references('id')->on('customers');

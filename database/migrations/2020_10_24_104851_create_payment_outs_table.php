@@ -22,7 +22,7 @@ class CreatePaymentOutsTable extends Migration
             $table->foreign('branch_id')->references('id')->on('restaurant_branches');
             $table->integer('purchase_order_id')->unsigned()->nullable();
             $table->foreign('purchase_order_id')->references('id')->on('purchase_orders');
-            $table->string('receipt_date');
+            $table->dateTime('receipt_date');
             $table->string('description')->nullable();
             $table->string('received');
             $table->timestamps();

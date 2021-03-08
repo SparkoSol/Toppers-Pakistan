@@ -49,7 +49,7 @@ a[x-apple-data-detectors] {
                   <td align="left" style="padding:0;Margin:0;width:560px">
                    <table width="100%" cellspacing="0" cellpadding="0" role="presentation" style="mso-table-lspace:0;mso-table-rspace:0;border-collapse:collapse;border-spacing:0">
                      <tr style="border-collapse:collapse">
-                      <td align="center" style="Margin:0;padding: 0 0 5px;font-size:0"><img src="https://api.apnapos.pk/images/ApnaPos.jpeg" alt="Apna-logo" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" class="adapt-img" title="Apna-logo" width="111"></td>
+                      <td align="center" style="Margin:0;padding: 0 0 5px;font-size:0"><img src="https://api.apnapos.pk/images/apnastore.png" alt="Apna-logo" style="display:block;border:0;outline:none;text-decoration:none;-ms-interpolation-mode:bicubic" class="adapt-img" title="Apna-logo" width="111"></td>
                      </tr>
                    </table></td>
                  </tr>

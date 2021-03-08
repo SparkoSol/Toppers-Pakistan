@@ -80,6 +80,7 @@ class PaymentInController extends Controller
             'balance' => $customerBalance
         ]);
         error_log($customerBalance);
+        error_log('in payment');
         if (request('order_id') != null) {
             $order = SaleOrder::where('id', request('order_id'))->first();
             if ($order->balance_due < request('received')) {

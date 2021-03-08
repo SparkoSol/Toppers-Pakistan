@@ -18,7 +18,7 @@ class DayCloseController extends Controller
             $dayClose->stockValue = request('stockValue');
             $dayClose->toPay = request('toPay');
             $dayClose->toReceive = request('toReceive');
-            $dayClose->date = date('Y-m-d');
+            $dayClose->date = date('Y-m-d H:i');
             if ($id > 0) {
                 $dayClose->branch_id = $id;
             }
